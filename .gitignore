@@ -1,0 +1,21 @@
+# data
+data/
+
+# python
+__pycache__/
+*.pyc
+
+# build artifacts
+build/
+*.egg-info/
+*.so
+
+# logs
+*.log
+
+# venv
+.venv/
+
+# vis outputs
+vis/
+work_dirs/
