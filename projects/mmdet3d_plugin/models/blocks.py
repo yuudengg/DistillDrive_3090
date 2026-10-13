@@ -291,7 +291,11 @@ class DenseDepthNet(BaseModule):
             focal = focal.reshape(-1)
         depths = []
         for i, feat in enumerate(feature_maps[: self.num_depth_layers]):
-            depth = self.depth_layers[i](feat.flatten(end_dim=1).float()).exp()
+            # clamp before exp: an un-clamped conv output can overflow exp()
+            # to inf after even a single optimizer step, producing NaN
+            # gradients that silently poison every other loss sharing this
+            # backbone (GradScaler then skips the update every iteration).
+            depth = self.depth_layers[i](feat.flatten(end_dim=1).float()).clamp(max=10).exp()
             depth = depth.transpose(0, -1) * focal / self.equal_focal
             depth = depth.transpose(0, -1)
             depths.append(depth)

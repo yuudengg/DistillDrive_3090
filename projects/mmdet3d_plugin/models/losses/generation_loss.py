@@ -70,9 +70,15 @@ class ProbabilisticLoss(nn.Module):
             var_future = var_future_tmp
 
         # VAE generative loss
+        # var_present is 0 at positions left unfilled by the only_valid_agent
+        # masking above; dividing by it there produces a 0/0 NaN in the
+        # backward pass (even though kl_loss_mask excludes those positions
+        # from the forward value), which corrupts gradients for every
+        # parameter upstream of this loss. Clamp away from exact zero.
+        var_present_safe = var_present.clamp(min=1e-6)
         kl_div = (
                 present_log_sigma - future_log_sigma - 0.5 + (var_future + (future_mu - present_mu) ** 2) / (
-                    2 * var_present)
+                    2 * var_present_safe)
         ) # [B, N1, 32]
 
         kl_loss = torch.mean(torch.sum(kl_div[kl_loss_mask], dim=-1)) * self.loss_weight 
