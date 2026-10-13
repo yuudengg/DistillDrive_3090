@@ -19,3 +19,6 @@ build/
 # vis outputs
 vis/
 work_dirs/
+
+# model checkpoints (large binaries, exceed GitHub's 100MB limit)
+checkpoint/

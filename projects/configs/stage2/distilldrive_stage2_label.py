@@ -9,12 +9,13 @@ dist_params = dict(backend="nccl")
 log_level = "INFO"
 work_dir = None
 
-total_batch_size = 48
-num_gpus = 8
+total_batch_size = 4
+num_gpus = 1
 batch_size = total_batch_size // num_gpus
 num_iters_per_epoch = int(length[version] // (num_gpus * batch_size))
 num_epochs = 10
-checkpoint_epoch_interval = 10
+checkpoint_epoch_interval = 2
+cudnn_benchmark = True
 
 checkpoint_config = dict(
     interval=num_iters_per_epoch * checkpoint_epoch_interval
@@ -26,8 +27,13 @@ log_config = dict(
         dict(type="TensorboardLoggerHook"),
     ],
 )
+import os
 load_from = None
-resume_from = None
+resume_from = (
+    "work_dirs/distilldrive_stage2_label/latest.pth"
+    if os.path.exists("work_dirs/distilldrive_stage2_label/latest.pth")
+    else None
+)
 workflow = [("train", 1)]
 fp16 = dict(loss_scale=32.0)
 input_shape = (704, 256)
@@ -856,7 +862,7 @@ data_aug_conf = {
 
 data = dict(
     samples_per_gpu=batch_size,
-    workers_per_gpu=batch_size,
+    workers_per_gpu=4,
     train=dict(
         **data_basic_config,
         ann_file=anno_root + "nuscenes_infos_train.pkl",
@@ -896,7 +902,7 @@ optimizer = dict(
         }
     ),
 )
-optimizer_config = dict(grad_clip=dict(max_norm=25, norm_type=2))
+optimizer_config = dict(cumulative_iters=12, grad_clip=dict(max_norm=25, norm_type=2))
 lr_config = dict(
     policy="CosineAnnealing",
     warmup="linear",
@@ -912,7 +918,7 @@ runner = dict(
 # ================== eval ========================
 eval_mode = dict(
     with_det=True,
-    with_tracking=True,
+    with_tracking=False,
     with_map=True,
     with_motion=True,
     with_planning=True,

@@ -10,7 +10,7 @@ log_level = "INFO"
 work_dir = None
 
 total_batch_size = 48
-num_gpus = 8
+num_gpus = 1
 batch_size = total_batch_size // num_gpus
 num_iters_per_epoch = int(length[version] // (num_gpus * batch_size))
 num_epochs = 30
@@ -382,7 +382,7 @@ data_aug_conf = {
 
 data = dict(
     samples_per_gpu=batch_size,
-    workers_per_gpu=batch_size,
+    workers_per_gpu=4,
     train=dict(
         **data_basic_config,
         ann_file=anno_root + "nuscenes_infos_train.pkl",
