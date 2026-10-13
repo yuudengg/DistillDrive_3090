@@ -266,7 +266,17 @@ def main():
     # TODO
     if cfg.model.head.task_config.with_motion_plan:
         checkpoint_distillation = torch.load(cfg.dlp_checkpoint)
-        model.load_state_dict(checkpoint_distillation['state_dict'], strict=False)
+        own_state = model.state_dict()
+        # strict=False only tolerates missing/unexpected keys, not shape
+        # mismatches; when the student backbone differs from the teacher's
+        # (e.g. R34/R18 student distilled from an R50 teacher), filter out
+        # any key whose shape doesn't match before loading.
+        filtered_state_dict = {
+            k: v
+            for k, v in checkpoint_distillation['state_dict'].items()
+            if k in own_state and own_state[k].shape == v.shape
+        }
+        model.load_state_dict(filtered_state_dict, strict=False)
     logger.info(f"Model:\n{model}")
 
     cfg.data.train.work_dir = cfg.work_dir

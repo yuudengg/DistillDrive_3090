@@ -15,6 +15,7 @@ from mmcv.runner import (
     DistSamplerSeedHook,
     EpochBasedRunner,
     Fp16OptimizerHook,
+    GradientCumulativeFp16OptimizerHook,
     OptimizerHook,
     build_optimizer,
     build_runner,
@@ -140,9 +141,14 @@ def custom_train_detector(
     # fp16 setting
     fp16_cfg = cfg.get("fp16", None)
     if fp16_cfg is not None:
-        optimizer_config = Fp16OptimizerHook(
-            **cfg.optimizer_config, **fp16_cfg, distributed=distributed
-        )
+        if "cumulative_iters" in cfg.optimizer_config:
+            optimizer_config = GradientCumulativeFp16OptimizerHook(
+                **cfg.optimizer_config, **fp16_cfg, distributed=distributed
+            )
+        else:
+            optimizer_config = Fp16OptimizerHook(
+                **cfg.optimizer_config, **fp16_cfg, distributed=distributed
+            )
     elif distributed and "type" not in cfg.optimizer_config:
         optimizer_config = OptimizerHook(**cfg.optimizer_config)
     else:
