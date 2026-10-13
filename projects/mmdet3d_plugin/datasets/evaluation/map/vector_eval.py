@@ -18,7 +18,10 @@ from .AP import instance_match, average_precision
 
 INTERP_NUM = 200 # number of points to interpolate during evaluation
 THRESHOLDS = [0.5, 1.0, 1.5] # AP thresholds
-N_WORKERS = 16 # num workers to parallel
+N_WORKERS = 0 # num workers to parallel (was 16, tried 2: both either OOM-SIGKILL
+# or hang in Pool.starmap on this box -- disabling multiprocessing entirely runs
+# the AP computation serially in-process instead, which is slower but actually
+# completes; also skips the separate n_workers-based gts-collection dataloader)
 
 class VectorEvaluate(object):
     """Evaluator for vectorized map.
