@@ -28,6 +28,13 @@
 
 _base_ = ["./distilldrive_stage2_distribution.py"]
 
+import os
+
+# The base config auto-resumes from ITS OWN work dir. Without this override a
+# Phase 1 run would silently resume from the unpruned baseline checkpoint.
+_sq_latest = "work_dirs/distilldrive_stage2_distribution_sq/latest.pth"
+resume_from = _sq_latest if os.path.exists(_sq_latest) else None
+
 num_query = 64
 
 model = dict(

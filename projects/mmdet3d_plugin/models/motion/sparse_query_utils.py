@@ -271,7 +271,10 @@ def probabilistic_loss_pruned(
         fls[b, slot] = future_log_sigma[b, slot]
         vf[b, slot] = var_future[b, slot]
 
-    kl = pls - fls - 0.5 + (vf + (fm - pm) ** 2) / (2 * vp)
+    # Same guard as ProbabilisticLoss in losses/generation_loss.py: vp is 0 at the
+    # slots that the mask leaves unfilled, and the 0/0 there turns the backward
+    # pass into NaN even though kl[mask] drops those slots from the forward value.
+    kl = pls - fls - 0.5 + (vf + (fm - pm) ** 2) / (2 * vp.clamp(min=1e-6))
     if mask.sum() == 0:
         return present_mu.sum() * 0.0
     return torch.mean(torch.sum(kl[mask], dim=-1)) * loss_weight
