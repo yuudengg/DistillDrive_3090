@@ -1,0 +1,34 @@
+{
+  "mode": "full_amp",
+  "original": {
+    "n_timed": 100,
+    "latency_ms_mean": 92.37311245407909,
+    "latency_ms_std": 0.3370459893251499,
+    "fps": 10.825660989794235,
+    "latency_ms_median": 92.36882743425667,
+    "latency_ms_p90": 92.77855246327817,
+    "model_static_alloc_MB": 334.71728515625,
+    "peak_allocated_MB": 1374.14892578125,
+    "peak_reserved_MB": 1638.0
+  },
+  "matmul": {
+    "n_timed": 100,
+    "latency_ms_mean": 81.78786199074239,
+    "latency_ms_std": 0.36617569165659475,
+    "fps": 12.226753159450366,
+    "latency_ms_median": 81.73324866220355,
+    "latency_ms_p90": 82.39814559929073,
+    "model_static_alloc_MB": 334.71728515625,
+    "peak_allocated_MB": 620.06591796875,
+    "peak_reserved_MB": 846.0
+  },
+  "operator_check": {
+    "n_calls": 860,
+    "dtypes": [
+      "torch.float32"
+    ],
+    "max_abs_diff": 0.0,
+    "ref_absmax": 68.31771850585938,
+    "max_matches_per_row": 1
+  }
+}

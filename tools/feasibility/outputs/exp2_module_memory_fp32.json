@@ -1,0 +1,91 @@
+{
+  "mode": "fp32",
+  "params": {
+    "img_backbone": {
+      "params_M": 23.508032,
+      "param_MB": 89.676025390625,
+      "buffer_MB": 0.20304107666015625
+    },
+    "img_neck": {
+      "params_M": 3.344384,
+      "param_MB": 12.7578125,
+      "buffer_MB": 0.0
+    },
+    "det_head": {
+      "params_M": 21.303045,
+      "param_MB": 81.26466751098633,
+      "buffer_MB": 0.0
+    },
+    "map_head": {
+      "params_M": 27.51965,
+      "param_MB": 104.97913360595703,
+      "buffer_MB": 0.0
+    },
+    "motion_plan_head": {
+      "params_M": 10.878989,
+      "param_MB": 41.50004959106445,
+      "buffer_MB": 0.0
+    },
+    "depth_branch (train only)": {
+      "params_M": 0.000771,
+      "param_MB": 0.002941131591796875,
+      "buffer_MB": 0.0
+    },
+    "total": {
+      "params_M": 86.554871,
+      "param_MB": 330.1806297302246,
+      "buffer_MB": 0.20304107666015625
+    }
+  },
+  "activations": {
+    "img_backbone": {
+      "n": 100,
+      "transient_MB_mean": 214.5,
+      "transient_MB_max": 214.5,
+      "retained_MB_mean": 123.75,
+      "retained_MB_max": 123.75
+    },
+    "img_neck": {
+      "n": 100,
+      "transient_MB_mean": 378.375,
+      "transient_MB_max": 378.375,
+      "retained_MB_mean": 87.875,
+      "retained_MB_max": 87.875
+    },
+    "feature_maps_format": {
+      "n": 100,
+      "transient_MB_mean": 175.3125,
+      "transient_MB_max": 175.3125,
+      "retained_MB_mean": 87.6572265625,
+      "retained_MB_max": 87.6572265625
+    },
+    "det_head": {
+      "n": 100,
+      "transient_MB_mean": 25.0146484375,
+      "transient_MB_max": 25.0146484375,
+      "retained_MB_mean": 2.24560546875,
+      "retained_MB_max": 2.24560546875
+    },
+    "map_head": {
+      "n": 100,
+      "transient_MB_mean": 45.94384765625,
+      "transient_MB_max": 45.94384765625,
+      "retained_MB_mean": 0.2978515625,
+      "retained_MB_max": 0.2978515625
+    },
+    "motion_plan_head": {
+      "n": 100,
+      "transient_MB_mean": 799.68701171875,
+      "transient_MB_max": 799.68701171875,
+      "retained_MB_mean": 2.6004931640625,
+      "retained_MB_max": 2.6279296875
+    },
+    "post_process": {
+      "n": 100,
+      "transient_MB_mean": 7.6669921875,
+      "transient_MB_max": 7.6669921875,
+      "retained_MB_mean": 0.00244140625,
+      "retained_MB_max": 0.00244140625
+    }
+  }
+}
