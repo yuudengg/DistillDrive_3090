@@ -1,0 +1,167 @@
+{
+  "a": "tools/feasibility/outputs/queue_eval/original/outputs.pkl",
+  "b": "tools/feasibility/outputs/queue_eval/matmul/outputs.pkl",
+  "n_samples": 6019,
+  "keys": {
+    "boxes_3d": {
+      "max": 210.97145462036133,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 96.42190551757812,
+      "p99_per_sample": 117.1463872528076
+    },
+    "scores_3d": {
+      "max": 0.28064027428627014,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.022134020924568176,
+      "p99_per_sample": 0.12631978988647447
+    },
+    "scores_3d_sorted": {
+      "max": 0.28064027428627014,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.022134020924568176,
+      "p99_per_sample": 0.12631978988647447
+    },
+    "labels_3d": {
+      "max": 235.0,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 154.0,
+      "p99_per_sample": 211.0
+    },
+    "cls_scores": {
+      "max": 0.3555198907852173,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.029439926147460938,
+      "p99_per_sample": 0.1518753755092619
+    },
+    "cls_scores_sorted": {
+      "max": 0.3555198907852173,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.029439926147460938,
+      "p99_per_sample": 0.1518753755092619
+    },
+    "instance_ids": {
+      "max": 297.0,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 270.0,
+      "p99_per_sample": 290.0
+    },
+    "vectors": {
+      "max": 84.06126594543457,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 58.50981140136719,
+      "p99_per_sample": 70.60766716003418
+    },
+    "scores": {
+      "max": 0.15892398357391357,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.0030609965324401855,
+      "p99_per_sample": 0.07575610995292655
+    },
+    "scores_sorted": {
+      "max": 0.15892398357391357,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.0030609965324401855,
+      "p99_per_sample": 0.07575610995292655
+    },
+    "labels": {
+      "max": 67.0,
+      "n_samples_diff": 5320,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 12.0,
+      "p99_per_sample": 56.0
+    },
+    "trajs_3d": {
+      "max": 293.8778533935547,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 133.37085723876953,
+      "p99_per_sample": 243.95595947265622
+    },
+    "trajs_score": {
+      "max": 0.6772738173604012,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.494186669588089,
+      "p99_per_sample": 0.6273207084089516
+    },
+    "anchor_queue": {
+      "max": 210.97145462036133,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 96.4253044128418,
+      "p99_per_sample": 117.1463872528076
+    },
+    "period": {
+      "max": 193.0,
+      "n_samples_diff": 5734,
+      "first_diff": 2,
+      "shape_mismatch": 0,
+      "median_per_sample": 32.0,
+      "p99_per_sample": 160.0
+    },
+    "planning_score": {
+      "max": 0.534121572971344,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.00030916929244995117,
+      "p99_per_sample": 0.2531255048513408
+    },
+    "planning": {
+      "max": 1.8769845962524414,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.03882884979248047,
+      "p99_per_sample": 0.43858287811279184
+    },
+    "final_planning": {
+      "max": 4.160914421081543,
+      "n_samples_diff": 6019,
+      "first_diff": 0,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.01908111572265625,
+      "p99_per_sample": 1.1468213653564452
+    },
+    "ego_period": {
+      "max": 0.0,
+      "n_samples_diff": 0,
+      "first_diff": null,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.0,
+      "p99_per_sample": 0.0
+    },
+    "ego_anchor_queue": {
+      "max": 0.3980708122253418,
+      "n_samples_diff": 6018,
+      "first_diff": 1,
+      "shape_mismatch": 0,
+      "median_per_sample": 0.017641067504882812,
+      "p99_per_sample": 0.18492286682128903
+    }
+  }
+}

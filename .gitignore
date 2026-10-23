@@ -22,3 +22,6 @@ work_dirs/
 
 # model checkpoints (large binaries, exceed GitHub's 100MB limit)
 checkpoint/
+
+# feasibility experiment A raw outputs (~7GB, documented in tools/feasibility/outputs_A/README.md)
+tools/feasibility/outputs_A/*.pkl
