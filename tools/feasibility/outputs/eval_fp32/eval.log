@@ -1,0 +1,108 @@
+{'version': 'v1.0-trainval'}
+
+
+Formating bboxes of img_bbox
+Start to convert detection format...
+Results writes to /workspace/yujung/DistillDrive/tools/feasibility/outputs/eval_fp32/results_nusc.json
+Initializing nuScenes detection evaluation
+Loaded results from /workspace/yujung/DistillDrive/tools/feasibility/outputs/eval_fp32/results_nusc.json. Found detections for 6019 samples.
+Loading annotations for val split from nuScenes version: v1.0-trainval
+
+Filtering predictions
+=> Original number of boxes: 1361626
+=> After distance based filtering: 1361250
+=> After LIDAR and RADAR points based filtering: 1361250
+=> After bike rack filtering: 1360426
+Filtering ground truth annotations
+=> Original number of boxes: 187528
+=> After distance based filtering: 134565
+=> After LIDAR and RADAR points based filtering: 121871
+=> After bike rack filtering: 121861
+Accumulating metric data...
+Calculating metrics...
+Saving metrics to: /workspace/yujung/DistillDrive/tools/feasibility/outputs/eval_fp32
+mAP: 0.2984
+mATE: 0.7061
+mASE: 0.2809
+mAOE: 0.6766
+mAVE: 0.7923
+mAAE: 0.2301
+NDS: 0.3806
+Eval time: 54.3s
+
+Per-class results:
+Object Class	AP	ATE	ASE	AOE	AVE	AAE
+car	0.521	0.486	0.151	0.120	0.893	0.219
+truck	0.198	0.757	0.212	0.170	0.659	0.215
+bus	0.220	0.918	0.230	0.201	1.851	0.325
+trailer	0.030	1.107	0.259	0.643	0.505	0.124
+construction_vehicle	0.025	1.088	0.507	1.328	0.161	0.447
+pedestrian	0.397	0.664	0.286	0.855	0.577	0.326
+motorcycle	0.274	0.658	0.295	1.062	1.258	0.166
+bicycle	0.324	0.498	0.275	1.525	0.435	0.019
+traffic_cone	0.524	0.376	0.317	nan	nan	nan
+barrier	0.470	0.508	0.278	0.187	nan	nan
+{'version': 'v1.0-trainval'}
+saving submissions results to /workspace/yujung/DistillDrive/tools/feasibility/outputs/eval_fp32/submission_vector.json
+collecting gts...
+evaluating 3 categories...
+
++--------------+-----------+---------+--------+--------+--------+--------+
+|   category   | num_preds | num_gts | AP@0.5 | AP@1.0 | AP@1.5 |   AP   |
++--------------+-----------+---------+--------+--------+--------+--------+
+| ped_crossing |   97305   |   7200  | 0.1063 | 0.4136 | 0.6217 | 0.3805 |
+|   divider    |   295332  |  27332  | 0.1981 | 0.4292 | 0.5761 | 0.4012 |
+|   boundary   |   209263  |  21050  | 0.1748 | 0.5429 | 0.7229 | 0.4802 |
++--------------+-----------+---------+--------+--------+--------+--------+
+mAP_normal = 0.4206
+
+Start to convert detection format...
+
+
+
++-------------+--------+-------------+-------------+---------------+
+| class names |  EPA   | min_ade_err | min_fde_err | miss_rate_err |
++-------------+--------+-------------+-------------+---------------+
+|     car     | 0.3332 |    0.9903   |    1.5701   |     0.2190    |
+|  pedestrian | 0.2535 |    0.8762   |    1.2943   |     0.2099    |
++-------------+--------+-------------+-------------+---------------+
+{'version': 'v1.0-trainval'}
+
+
++-------------+--------+--------+--------+--------+--------+--------+--------+
+|   metrics   |  0.5s  |  1.0s  |  1.5s  |  2.0s  |  2.5s  |  3.0s  |  avg   |
++-------------+--------+--------+--------+--------+--------+--------+--------+
+|   obj_col   | 0.742% | 0.713% | 0.684% | 0.659% | 0.649% | 0.638% | 0.670% |
+| obj_box_col | 0.020% | 0.039% | 0.078% | 0.161% | 0.297% | 0.557% | 0.252% |
+|      L2     | 0.2065 | 0.3349 | 0.4906 | 0.6753 | 0.8874 | 1.1252 | 0.7118 |
+|     L2_R    | 0.3041 | 0.4944 | 0.7236 | 0.9879 | 1.2820 | 1.6034 | 1.0286 |
+|     L2_L    | 0.2270 | 0.3786 | 0.5580 | 0.7695 | 1.0118 | 1.2838 | 0.8106 |
+|     L2_S    | 0.1965 | 0.3178 | 0.4654 | 0.6413 | 0.8440 | 1.0721 | 0.6771 |
++-------------+--------+--------+--------+--------+--------+--------+--------+
+
+mAP: 0.2984
+mATE: 0.7061
+mASE: 0.2809
+mAOE: 0.6766
+mAVE: 0.7923
+mAAE: 0.2301
+NDS: 0.3806
+
+ped_crossing= 0.3805
+divider= 0.4012
+boundary= 0.4802
+mAP_normal= 0.4206
+
+Car / Ped
+epa= 0.3332 / 0.2535
+ade= 0.9903 / 0.8762
+fde= 1.5701 / 1.2943
+mr= 0.2190 / 0.2099
+
+obj_box_col: 0.252%
+L2: 0.7118
+
+
+[saved] /workspace/yujung/DistillDrive/tools/feasibility/outputs/eval_fp32/metrics_full.json
+{'L2': 0.7117986203067833, 'obj_box_col': 0.002523279277132436, 'NDS': 0.38058451158199924, 'det_mAP': 0.29837323460894105, 'map_mAP': 0.42063368270036444, 'obj_col': 0.006701612793323066, 'car_EPA': 0.33321805052153947, 'pedestrian_EPA': 0.25353191489361704}
+[saved] /workspace/yujung/DistillDrive/tools/feasibility/outputs/exp3_infer_fp32_eval.json

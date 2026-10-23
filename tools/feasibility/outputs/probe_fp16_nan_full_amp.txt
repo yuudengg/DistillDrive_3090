@@ -1,0 +1,4 @@
+mode=full_amp frames=1000
+frames with non-finite head outputs: 0
+first: []
+anchor_projection created non-finite: []

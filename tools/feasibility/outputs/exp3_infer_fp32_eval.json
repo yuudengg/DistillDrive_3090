@@ -1,0 +1,17 @@
+{
+  "mode": "fp32",
+  "config": "projects/configs/stage2/distilldrive_stage2_distribution.py",
+  "ckpt": "checkpoint/distilldrive_stage2_distribution.pth",
+  "deploy": "distillation_head excluded (with_distillation=False)",
+  "cudnn_benchmark": false,
+  "eval": {
+    "L2": 0.7117986203067833,
+    "obj_box_col": 0.002523279277132436,
+    "NDS": 0.38058451158199924,
+    "det_mAP": 0.29837323460894105,
+    "map_mAP": 0.42063368270036444,
+    "obj_col": 0.006701612793323066,
+    "car_EPA": 0.33321805052153947,
+    "pedestrian_EPA": 0.25353191489361704
+  }
+}

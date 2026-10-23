@@ -1,0 +1,4 @@
+mode=full_amp_raw frames=440
+frames with non-finite head outputs: 4
+first: [(436, ('det_head.anchor_encoder.pos_fc.0', 'Linear', 'input already non-finite')), (437, ('det_head.anchor_encoder.pos_fc.0', 'Linear', 'input already non-finite'))]
+anchor_projection created non-finite: [{'frame': 436, 'head': 'det_head', 'time_interval_s': -431388.0, 'anchor_absmax': 58.67738723754883, 'vel_absmax': 19.203201293945312}]

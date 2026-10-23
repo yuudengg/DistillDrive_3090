@@ -1,0 +1,24 @@
+{
+  "mode": "full_amp",
+  "config": "projects/configs/stage2/distilldrive_stage2_distribution.py",
+  "ckpt": "checkpoint/distilldrive_stage2_distribution.pth",
+  "deploy": "distillation_head excluded (with_distillation=False)",
+  "cudnn_benchmark": false,
+  "dropped_teacher_keys": 260,
+  "model_params": {
+    "params_M": 86.554871,
+    "param_MB": 330.1806297302246,
+    "buffer_MB": 0.20304107666015625
+  },
+  "bench": {
+    "n_timed": 100,
+    "latency_ms_mean": 92.07165737170726,
+    "latency_ms_std": 0.4527766361114262,
+    "fps": 10.861105670802125,
+    "latency_ms_median": 92.01919077895582,
+    "latency_ms_p90": 92.63408477418125,
+    "model_static_alloc_MB": 334.71728515625,
+    "peak_allocated_MB": 1374.14892578125,
+    "peak_reserved_MB": 1638.0
+  }
+}

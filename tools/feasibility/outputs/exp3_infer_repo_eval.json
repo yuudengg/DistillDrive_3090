@@ -1,0 +1,17 @@
+{
+  "mode": "repo",
+  "config": "projects/configs/stage2/distilldrive_stage2_distribution.py",
+  "ckpt": "checkpoint/distilldrive_stage2_distribution.pth",
+  "deploy": "distillation_head excluded (with_distillation=False)",
+  "cudnn_benchmark": false,
+  "eval": {
+    "L2": 0.7136724297371174,
+    "obj_box_col": 0.0025395585370359994,
+    "NDS": 0.3806932095307708,
+    "det_mAP": 0.2989780878571458,
+    "map_mAP": 0.42086886275060814,
+    "obj_col": 0.006701612793323066,
+    "car_EPA": 0.3340342528290402,
+    "pedestrian_EPA": 0.25357446808510636
+  }
+}
