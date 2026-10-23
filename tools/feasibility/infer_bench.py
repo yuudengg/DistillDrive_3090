@@ -43,20 +43,21 @@ def bench(model, samples, n_warmup):
     )
 
 
-def full_eval(cfg, mode, out_dir):
+def run_inference(model, loader, limit=None):
     import mmcv
 
-    model, _ = C.build_model(cfg)
-    C.apply_precision(model, mode)
-    model.cuda().eval()
-    dataset, loader = C.build_test_loader(cfg, work_dir=out_dir)
     results = []
-    prog = mmcv.ProgressBar(len(dataset))
+    prog = mmcv.ProgressBar(limit or len(loader.dataset))
     with torch.no_grad():
-        for data in loader:
-            out = model(return_loss=False, rescale=True, **C.to_gpu(data))
-            results.extend(out)
+        for i, data in enumerate(loader):
+            if limit is not None and i >= limit:
+                break
+            results.extend(model(return_loss=False, rescale=True, **C.to_gpu(data)))
             prog.update()
+    return results
+
+
+def evaluate(cfg, dataset, results):
     eval_kwargs = dict(cfg.get("evaluation", {}))
     for k in ["interval", "tmpdir", "start", "gpu_collect", "save_best", "rule"]:
         eval_kwargs.pop(k, None)
@@ -71,6 +72,14 @@ def full_eval(cfg, mode, out_dir):
                      for k, v in metrics.items()}
 
 
+def full_eval(cfg, mode, out_dir):
+    model, _ = C.build_model(cfg)
+    C.apply_precision(model, mode)
+    model.cuda().eval()
+    dataset, loader = C.build_test_loader(cfg, work_dir=out_dir)
+    return evaluate(cfg, dataset, run_inference(model, loader))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--mode", choices=C.PRECISION_MODES, required=True)
@@ -80,10 +89,13 @@ def main():
     ap.add_argument("--iters", type=int, default=100)
     ap.add_argument("--eval", action="store_true", help="also run full val evaluation")
     ap.add_argument("--skip-bench", action="store_true")
+    ap.add_argument("--queue", choices=["original", "matmul"], default="original")
+    ap.add_argument("--tag", default="", help="suffix of the output file name")
     args = ap.parse_args()
 
     cfg = C.load_cfg(args.config)
-    report = dict(mode=args.mode, config=args.config, ckpt=args.ckpt,
+    C.set_queue_variant(args.queue)
+    report = dict(mode=args.mode, config=args.config, ckpt=args.ckpt, queue=args.queue,
                   deploy="distillation_head excluded (with_distillation=False)",
                   cudnn_benchmark=torch.backends.cudnn.benchmark)
 
@@ -109,7 +121,8 @@ def main():
         print(summary)
 
     suffix = "_eval" if args.eval and args.skip_bench else ""
-    C.dump_json(report, os.path.join(C.OUT_ROOT, f"exp3_infer_{args.mode}{suffix}.json"))
+    tag = f"_{args.tag}" if args.tag else ""
+    C.dump_json(report, os.path.join(C.OUT_ROOT, f"exp3_infer_{args.mode}{tag}{suffix}.json"))
 
 
 if __name__ == "__main__":

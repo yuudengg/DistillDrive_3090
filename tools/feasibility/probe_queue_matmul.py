@@ -17,41 +17,12 @@ import common as C
 from infer_bench import bench
 
 
-def prepare_motion_matmul(self, det_output, mask):
-    """Same as InstanceQueue.prepare_motion, with the broadcast-sum as matmul."""
-    instance_feature = det_output["instance_feature"]
-    det_anchors = det_output["prediction"][-1]
-    if self.period == None:  # noqa: E711  (mirrors the original)
-        self.period = instance_feature.new_zeros(instance_feature.shape[:2]).long()
-    else:
-        match = det_output["instance_id"][..., None] == self.prev_instance_id[:, None]
-        if self.tracking_threshold > 0:
-            match = match * (self.prev_confidence > self.tracking_threshold).unsqueeze(1)
-        # autocast off: a one-hot gather must not round fp32 queue entries to fp16
-        with torch.autocast(device_type="cuda", enabled=False):
-            for i in range(len(self.instance_feature_queue)):
-                f = self.instance_feature_queue[i]
-                self.instance_feature_queue[i] = torch.matmul(match.to(f.dtype), f)
-                a = self.anchor_queue[i]
-                self.anchor_queue[i] = torch.matmul(match.to(a.dtype), a)
-        self.period = (match * self.period[:, None]).sum(dim=2)
-    self.instance_feature_queue.append(instance_feature.detach())
-    self.anchor_queue.append(det_anchors.detach())
-    self.period += 1
-    if len(self.instance_feature_queue) > self.queue_length:
-        self.instance_feature_queue.pop(0)
-        self.anchor_queue.pop(0)
-    self.period = torch.clip(self.period, 0, self.queue_length)
-
-
 def make_checked(diffs):
     """Original prepare_motion, but also computes the matmul form and records |diff|."""
 
     def checked(self, det_output, mask):
         if self.period is not None:
-            match = det_output["instance_id"][..., None] == self.prev_instance_id[:, None]
-            if self.tracking_threshold > 0:
-                match = match * (self.prev_confidence > self.tracking_threshold).unsqueeze(1)
+            match = C._tracking_match(self, det_output)
             for q in list(self.instance_feature_queue) + list(self.anchor_queue):
                 ref = (match[..., None] * q[:, None]).sum(dim=2)
                 with torch.autocast(device_type="cuda", enabled=False):
@@ -80,7 +51,7 @@ def main():
     ORIGINAL = InstanceQueue.prepare_motion
     report = dict(mode=args.mode)
     for variant in ["original", "matmul"]:
-        InstanceQueue.prepare_motion = ORIGINAL if variant == "original" else prepare_motion_matmul
+        C.set_queue_variant(variant)
         model, _ = C.build_model(cfg)
         C.apply_precision(model, args.mode)
         model.cuda().eval()

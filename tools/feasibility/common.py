@@ -9,6 +9,7 @@ import functools
 import importlib
 import json
 import os
+import re
 import sys
 
 import torch
@@ -62,10 +63,19 @@ def build_model(cfg, ckpt=DEFAULT_CKPT, deploy=True):
     res = model.load_state_dict(sd, strict=False)
     missing, unexpected = res.missing_keys, res.unexpected_keys
     assert not missing, f"missing keys: {missing[:10]}"
-    if deploy:
-        assert all(k.startswith("head.distillation_head.") for k in unexpected), unexpected[:10]
-    else:
-        assert not unexpected, unexpected[:10]
+    # a config with fewer decoder layers (tools/feasibility/configs) drops the trailing
+    # head.<det|map>_head.layers.<i> entries; the remaining layers keep their weights
+    n_layers = {h: len(getattr(model.head, h).layers) for h in ("det_head", "map_head")}
+
+    def dropped_layer(k):
+        m = re.match(r"head\.(det_head|map_head)\.layers\.(\d+)\.", k)
+        return m is not None and int(m.group(2)) >= n_layers[m.group(1)]
+
+    teacher = [k for k in unexpected if k.startswith("head.distillation_head.")]
+    dropped = [k for k in unexpected if dropped_layer(k)]
+    assert len(teacher) + len(dropped) == len(unexpected), \
+        [k for k in unexpected if k not in teacher and k not in dropped][:10]
+    assert deploy or not teacher, teacher[:10]
     return model, len(unexpected)
 
 
@@ -111,6 +121,88 @@ def apply_precision(model, mode):
             handler = head.instance_bank.anchor_handler
             handler.anchor_projection = _fp32_call(handler.anchor_projection)
             head.anchor_encoder.forward = _fp32_call(head.anchor_encoder.forward)
+    return model
+
+
+def _tracking_match(queue, det_output):
+    """The tracking match matrix exactly as InstanceQueue.prepare_motion builds it."""
+    match = det_output["instance_id"][..., None] == queue.prev_instance_id[:, None]
+    if queue.tracking_threshold > 0:
+        match = match * (queue.prev_confidence > queue.tracking_threshold).unsqueeze(1)
+    return match
+
+
+def prepare_motion_matmul(self, det_output, mask):
+    """InstanceQueue.prepare_motion with the (B, N, N, C) broadcast-sum replaced by
+    the equivalent matmul; everything else is line-for-line the original."""
+    instance_feature = det_output["instance_feature"]
+    det_anchors = det_output["prediction"][-1]
+    if self.period == None:  # noqa: E711  (mirrors the original)
+        self.period = instance_feature.new_zeros(instance_feature.shape[:2]).long()
+    else:
+        match = _tracking_match(self, det_output)
+        # autocast off: a one-hot gather must not round fp32 queue entries to fp16
+        with torch.autocast(device_type="cuda", enabled=False):
+            for i in range(len(self.instance_feature_queue)):
+                f = self.instance_feature_queue[i]
+                self.instance_feature_queue[i] = torch.matmul(match.to(f.dtype), f)
+                a = self.anchor_queue[i]
+                self.anchor_queue[i] = torch.matmul(match.to(a.dtype), a)
+        self.period = (match * self.period[:, None]).sum(dim=2)
+    self.instance_feature_queue.append(instance_feature.detach())
+    self.anchor_queue.append(det_anchors.detach())
+    self.period += 1
+    if len(self.instance_feature_queue) > self.queue_length:
+        self.instance_feature_queue.pop(0)
+        self.anchor_queue.pop(0)
+    self.period = torch.clip(self.period, 0, self.queue_length)
+
+
+def set_queue_variant(variant, match_stats=None):
+    """variant: "original" | "matmul". With match_stats (dict), every call also
+    records the match matrix dtype, its distinct values and max matches per row."""
+    from projects.mmdet3d_plugin.models.motion.instance_queue import InstanceQueue
+
+    if not hasattr(InstanceQueue, "_orig_prepare_motion"):
+        InstanceQueue._orig_prepare_motion = InstanceQueue.prepare_motion
+    impl = InstanceQueue._orig_prepare_motion if variant == "original" else prepare_motion_matmul
+    if match_stats is None:
+        InstanceQueue.prepare_motion = impl
+        return
+
+    match_stats.update(calls=0, dtypes=set(), values=set(), max_per_row=0, max_per_col=0)
+
+    def recorded(self, det_output, mask):
+        if self.period is not None:
+            m = _tracking_match(self, det_output)
+            match_stats["calls"] += 1
+            match_stats["dtypes"].add(str(m.dtype))
+            match_stats["values"].update(torch.unique(m.int()).tolist())
+            match_stats["max_per_row"] = max(match_stats["max_per_row"], int(m.sum(-1).max()))
+            match_stats["max_per_col"] = max(match_stats["max_per_col"], int(m.sum(-2).max()))
+        return impl(self, det_output, mask)
+
+    InstanceQueue.prepare_motion = recorded
+
+
+def read_eval_layer(model, n_layers):
+    """det_head / map_head post_process read decoder layer `n_layers` (1-based) instead of
+    the last one. The lists are sliced instead of passing output_idx because the map
+    decoder ignores output_idx (always uses [-1]). Only these two post_process calls are
+    affected: the instance bank cache, instance ids, motion_plan_head and its
+    post-processing still see the full model's last layer."""
+    for attr in ("det_head", "map_head"):
+        head = getattr(model.head, attr)
+        orig = head.post_process
+
+        def post_process(model_outs, output_idx=-1, _orig=orig):
+            outs = dict(model_outs)
+            for k in ("classification", "prediction", "quality"):
+                if isinstance(outs.get(k), list):
+                    outs[k] = outs[k][:n_layers]
+            return _orig(outs, output_idx=-1)
+
+        head.post_process = post_process
     return model
 
 
