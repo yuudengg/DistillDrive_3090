@@ -1,0 +1,109 @@
+{'version': 'v1.0-trainval'}
+
+All Results write to /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4/results.pkl
+
+Formating bboxes of img_bbox
+Start to convert detection format...
+Results writes to /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4/results_nusc.json
+Initializing nuScenes detection evaluation
+Loaded results from /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4/results_nusc.json. Found detections for 6019 samples.
+Loading annotations for val split from nuScenes version: v1.0-trainval
+
+Filtering predictions
+=> Original number of boxes: 1362416
+=> After distance based filtering: 1362013
+=> After LIDAR and RADAR points based filtering: 1362013
+=> After bike rack filtering: 1361153
+Filtering ground truth annotations
+=> Original number of boxes: 187528
+=> After distance based filtering: 134565
+=> After LIDAR and RADAR points based filtering: 121871
+=> After bike rack filtering: 121861
+Accumulating metric data...
+Calculating metrics...
+Saving metrics to: /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4
+mAP: 0.2984
+mATE: 0.7070
+mASE: 0.2807
+mAOE: 0.6794
+mAVE: 0.7917
+mAAE: 0.2296
+NDS: 0.3803
+Eval time: 55.4s
+
+Per-class results:
+Object Class	AP	ATE	ASE	AOE	AVE	AAE
+car	0.521	0.486	0.151	0.119	0.892	0.219
+truck	0.201	0.749	0.212	0.174	0.655	0.216
+bus	0.221	0.921	0.230	0.202	1.853	0.334
+trailer	0.031	1.106	0.259	0.649	0.503	0.126
+construction_vehicle	0.024	1.101	0.506	1.317	0.159	0.440
+pedestrian	0.396	0.665	0.285	0.856	0.577	0.321
+motorcycle	0.272	0.654	0.295	1.076	1.254	0.166
+bicycle	0.323	0.502	0.275	1.536	0.439	0.017
+traffic_cone	0.525	0.376	0.317	nan	nan	nan
+barrier	0.471	0.509	0.277	0.187	nan	nan
+{'version': 'v1.0-trainval'}
+saving submissions results to /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4/submission_vector.json
+collecting gts...
+evaluating 3 categories...
+
++--------------+-----------+---------+--------+--------+--------+--------+
+|   category   | num_preds | num_gts | AP@0.5 | AP@1.0 | AP@1.5 |   AP   |
++--------------+-----------+---------+--------+--------+--------+--------+
+| ped_crossing |   62707   |   7200  | 0.0616 | 0.2691 | 0.4299 | 0.2535 |
+|   divider    |   308034  |  27332  | 0.1245 | 0.2835 | 0.3636 | 0.2572 |
+|   boundary   |   231159  |  21050  | 0.117  | 0.3736 | 0.5157 | 0.3354 |
++--------------+-----------+---------+--------+--------+--------+--------+
+mAP_normal = 0.2821
+
+Start to convert detection format...
+
+
+
++-------------+--------+-------------+-------------+---------------+
+| class names |  EPA   | min_ade_err | min_fde_err | miss_rate_err |
++-------------+--------+-------------+-------------+---------------+
+|     car     | 0.3251 |    1.0866   |    1.7317   |     0.2345    |
+|  pedestrian | 0.2488 |    0.8870   |    1.3214   |     0.2143    |
++-------------+--------+-------------+-------------+---------------+
+{'version': 'v1.0-trainval'}
+
+
++-------------+--------+--------+--------+--------+--------+--------+--------+
+|   metrics   |  0.5s  |  1.0s  |  1.5s  |  2.0s  |  2.5s  |  3.0s  |  avg   |
++-------------+--------+--------+--------+--------+--------+--------+--------+
+|   obj_col   | 0.742% | 0.713% | 0.684% | 0.659% | 0.649% | 0.638% | 0.670% |
+| obj_box_col | 0.020% | 0.039% | 0.085% | 0.210% | 0.363% | 0.703% | 0.317% |
+|      L2     | 0.3820 | 0.5815 | 0.7975 | 1.0363 | 1.2973 | 1.5811 | 1.0663 |
+|     L2_R    | 0.5687 | 0.8717 | 1.2062 | 1.5846 | 1.9944 | 2.4362 | 1.6308 |
+|     L2_L    | 0.5070 | 0.7826 | 1.0748 | 1.3909 | 1.7301 | 2.0965 | 1.4233 |
+|     L2_S    | 0.3572 | 0.5426 | 0.7431 | 0.9644 | 1.2070 | 1.4714 | 0.9928 |
++-------------+--------+--------+--------+--------+--------+--------+--------+
+
+mAP: 0.2984
+mATE: 0.7070
+mASE: 0.2807
+mAOE: 0.6794
+mAVE: 0.7917
+mAAE: 0.2296
+NDS: 0.3803
+
+ped_crossing= 0.2535
+divider= 0.2572
+boundary= 0.3354
+mAP_normal= 0.2821
+
+Car / Ped
+epa= 0.3251 / 0.2488
+ade= 1.0866 / 0.8870
+fde= 1.7317 / 1.3214
+mr= 0.2345 / 0.2143
+
+obj_box_col: 0.317%
+L2: 1.0663
+
+
+[saved] /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4/metrics_full.json
+{'L2': 1.066302969223923, 'obj_box_col': 0.003174448072564297, 'NDS': 0.38034406675731763, 'det_mAP': 0.2983702538502277, 'map_mAP': 0.282060395493795, 'obj_col': 0.006701612793323066, 'car_EPA': 0.3251321141023158, 'pedestrian_EPA': 0.24880851063829787}
+[saved] /workspace/yujung/DistillDrive/tools/feasibility/outputs/queue_eval/det6_map4/report.json

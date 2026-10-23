@@ -1,0 +1,35 @@
+{
+  "variant": "matmul",
+  "mode": "repo",
+  "seed": 0,
+  "config": "tools/feasibility/configs/stage2_distribution_det6_map4.py",
+  "flags": {
+    "cuda_matmul_allow_tf32": false,
+    "cudnn_allow_tf32": true,
+    "cudnn_benchmark": false,
+    "cudnn_deterministic": false
+  },
+  "inference_min": 8.739011681079864,
+  "match": {
+    "calls": 6018,
+    "dtypes": [
+      "torch.bool"
+    ],
+    "values": [
+      0,
+      1
+    ],
+    "max_per_row": 1,
+    "max_per_col": 1
+  },
+  "eval": {
+    "L2": 1.066302969223923,
+    "obj_box_col": 0.003174448072564297,
+    "NDS": 0.38034406675731763,
+    "det_mAP": 0.2983702538502277,
+    "map_mAP": 0.282060395493795,
+    "obj_col": 0.006701612793323066,
+    "car_EPA": 0.3251321141023158,
+    "pedestrian_EPA": 0.24880851063829787
+  }
+}

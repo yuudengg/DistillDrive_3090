@@ -1,0 +1,25 @@
+{
+  "mode": "repo",
+  "config": "tools/feasibility/configs/stage2_distribution_det6_map4.py",
+  "ckpt": "checkpoint/distilldrive_stage2_distribution.pth",
+  "queue": "matmul",
+  "deploy": "distillation_head excluded (with_distillation=False)",
+  "cudnn_benchmark": false,
+  "dropped_teacher_keys": 378,
+  "model_params": {
+    "params_M": 77.329569,
+    "param_MB": 294.98889541625977,
+    "buffer_MB": 0.20304107666015625
+  },
+  "bench": {
+    "n_timed": 100,
+    "latency_ms_mean": 72.17225565575063,
+    "latency_ms_std": 0.35640068548840814,
+    "fps": 13.855739867267411,
+    "latency_ms_median": 72.12516875006258,
+    "latency_ms_p90": 72.6215255446732,
+    "model_static_alloc_MB": 296.89794921875,
+    "peak_allocated_MB": 584.09521484375,
+    "peak_reserved_MB": 762.0
+  }
+}

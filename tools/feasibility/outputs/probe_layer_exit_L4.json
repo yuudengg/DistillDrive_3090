@@ -1,0 +1,828 @@
+{
+  "layers": 4,
+  "frames": 80,
+  "summary": {
+    "det_cls": {
+      "scene_start_max": 1.6694345474243164,
+      "other_frames_median": 6.003742218017578,
+      "other_frames_max": 8.58774185180664
+    },
+    "det_reg": {
+      "scene_start_max": 2.116250514984131,
+      "other_frames_median": 110.52474975585938,
+      "other_frames_max": 150.9775848388672
+    },
+    "map_cls": {
+      "scene_start_max": 1.5345287322998047,
+      "other_frames_median": 4.410048007965088,
+      "other_frames_max": 6.4411773681640625
+    },
+    "map_reg": {
+      "scene_start_max": 17.07088851928711,
+      "other_frames_median": 60.900386810302734,
+      "other_frames_max": 81.60885620117188
+    }
+  },
+  "per_frame": [
+    {
+      "frame": 0,
+      "scene_start": true,
+      "det_cls": 0.0011148452758789062,
+      "det_reg": 0.0018982887268066406,
+      "det_feat_vs_full_last": 1.1550143957138062,
+      "map_cls": 0.00624847412109375,
+      "map_reg": 0.014830589294433594,
+      "map_feat_vs_full_last": 1.0874524116516113
+    },
+    {
+      "frame": 1,
+      "scene_start": false,
+      "det_cls": 5.136072158813477,
+      "det_reg": 103.99739837646484,
+      "det_feat_vs_full_last": 1.1482415199279785,
+      "map_cls": 4.302787780761719,
+      "map_reg": 62.308414459228516,
+      "map_feat_vs_full_last": 1.0845900774002075
+    },
+    {
+      "frame": 2,
+      "scene_start": false,
+      "det_cls": 4.913432598114014,
+      "det_reg": 98.97708129882812,
+      "det_feat_vs_full_last": 1.1650722026824951,
+      "map_cls": 3.5789811611175537,
+      "map_reg": 60.161869049072266,
+      "map_feat_vs_full_last": 1.0782445669174194
+    },
+    {
+      "frame": 3,
+      "scene_start": false,
+      "det_cls": 5.359087944030762,
+      "det_reg": 100.05216217041016,
+      "det_feat_vs_full_last": 1.1543006896972656,
+      "map_cls": 3.2649059295654297,
+      "map_reg": 55.7713508605957,
+      "map_feat_vs_full_last": 1.074385404586792
+    },
+    {
+      "frame": 4,
+      "scene_start": false,
+      "det_cls": 5.150028228759766,
+      "det_reg": 115.67616271972656,
+      "det_feat_vs_full_last": 1.1638094186782837,
+      "map_cls": 3.855212450027466,
+      "map_reg": 60.57281494140625,
+      "map_feat_vs_full_last": 1.0715347528457642
+    },
+    {
+      "frame": 5,
+      "scene_start": false,
+      "det_cls": 6.003742218017578,
+      "det_reg": 117.00938415527344,
+      "det_feat_vs_full_last": 1.1531307697296143,
+      "map_cls": 3.817000389099121,
+      "map_reg": 55.519989013671875,
+      "map_feat_vs_full_last": 1.0739623308181763
+    },
+    {
+      "frame": 6,
+      "scene_start": false,
+      "det_cls": 6.749663352966309,
+      "det_reg": 114.72493743896484,
+      "det_feat_vs_full_last": 1.1509562730789185,
+      "map_cls": 3.8146183490753174,
+      "map_reg": 55.452491760253906,
+      "map_feat_vs_full_last": 1.072341799736023
+    },
+    {
+      "frame": 7,
+      "scene_start": false,
+      "det_cls": 6.371226787567139,
+      "det_reg": 118.42611694335938,
+      "det_feat_vs_full_last": 1.1449793577194214,
+      "map_cls": 3.473276138305664,
+      "map_reg": 60.83207702636719,
+      "map_feat_vs_full_last": 1.0723069906234741
+    },
+    {
+      "frame": 8,
+      "scene_start": false,
+      "det_cls": 7.498522758483887,
+      "det_reg": 123.72305297851562,
+      "det_feat_vs_full_last": 1.1529932022094727,
+      "map_cls": 4.030839920043945,
+      "map_reg": 57.422630310058594,
+      "map_feat_vs_full_last": 1.0751899480819702
+    },
+    {
+      "frame": 9,
+      "scene_start": false,
+      "det_cls": 5.835885047912598,
+      "det_reg": 127.99906158447266,
+      "det_feat_vs_full_last": 1.1460319757461548,
+      "map_cls": 3.7078683376312256,
+      "map_reg": 56.78789520263672,
+      "map_feat_vs_full_last": 1.07487154006958
+    },
+    {
+      "frame": 10,
+      "scene_start": false,
+      "det_cls": 5.705153465270996,
+      "det_reg": 142.72650146484375,
+      "det_feat_vs_full_last": 1.1537986993789673,
+      "map_cls": 3.254028558731079,
+      "map_reg": 52.188316345214844,
+      "map_feat_vs_full_last": 1.0754624605178833
+    },
+    {
+      "frame": 11,
+      "scene_start": false,
+      "det_cls": 5.799623489379883,
+      "det_reg": 137.79673767089844,
+      "det_feat_vs_full_last": 1.1519300937652588,
+      "map_cls": 3.4428353309631348,
+      "map_reg": 58.55175018310547,
+      "map_feat_vs_full_last": 1.0778473615646362
+    },
+    {
+      "frame": 12,
+      "scene_start": false,
+      "det_cls": 5.599592685699463,
+      "det_reg": 134.2889404296875,
+      "det_feat_vs_full_last": 1.1495776176452637,
+      "map_cls": 3.6171419620513916,
+      "map_reg": 59.798519134521484,
+      "map_feat_vs_full_last": 1.072335124015808
+    },
+    {
+      "frame": 13,
+      "scene_start": false,
+      "det_cls": 6.211059093475342,
+      "det_reg": 139.85723876953125,
+      "det_feat_vs_full_last": 1.149109959602356,
+      "map_cls": 3.9574522972106934,
+      "map_reg": 71.00650024414062,
+      "map_feat_vs_full_last": 1.0683084726333618
+    },
+    {
+      "frame": 14,
+      "scene_start": false,
+      "det_cls": 5.642218112945557,
+      "det_reg": 141.46287536621094,
+      "det_feat_vs_full_last": 1.1528230905532837,
+      "map_cls": 3.668900489807129,
+      "map_reg": 60.78734588623047,
+      "map_feat_vs_full_last": 1.075266718864441
+    },
+    {
+      "frame": 15,
+      "scene_start": false,
+      "det_cls": 5.85125732421875,
+      "det_reg": 150.9775848388672,
+      "det_feat_vs_full_last": 1.134606957435608,
+      "map_cls": 3.4433417320251465,
+      "map_reg": 65.65837097167969,
+      "map_feat_vs_full_last": 1.067423939704895
+    },
+    {
+      "frame": 16,
+      "scene_start": false,
+      "det_cls": 6.023281097412109,
+      "det_reg": 135.0663299560547,
+      "det_feat_vs_full_last": 1.1358791589736938,
+      "map_cls": 4.211692810058594,
+      "map_reg": 63.997039794921875,
+      "map_feat_vs_full_last": 1.069571614265442
+    },
+    {
+      "frame": 17,
+      "scene_start": false,
+      "det_cls": 6.898440837860107,
+      "det_reg": 99.78025817871094,
+      "det_feat_vs_full_last": 1.1379843950271606,
+      "map_cls": 4.089953422546387,
+      "map_reg": 66.92445373535156,
+      "map_feat_vs_full_last": 1.06714928150177
+    },
+    {
+      "frame": 18,
+      "scene_start": false,
+      "det_cls": 7.310786724090576,
+      "det_reg": 90.943115234375,
+      "det_feat_vs_full_last": 1.1328190565109253,
+      "map_cls": 4.336669445037842,
+      "map_reg": 49.581905364990234,
+      "map_feat_vs_full_last": 1.0670777559280396
+    },
+    {
+      "frame": 19,
+      "scene_start": false,
+      "det_cls": 6.360701084136963,
+      "det_reg": 103.36243438720703,
+      "det_feat_vs_full_last": 1.1341310739517212,
+      "map_cls": 4.570060729980469,
+      "map_reg": 63.65374755859375,
+      "map_feat_vs_full_last": 1.068688154220581
+    },
+    {
+      "frame": 20,
+      "scene_start": false,
+      "det_cls": 6.87423038482666,
+      "det_reg": 92.56483459472656,
+      "det_feat_vs_full_last": 1.1344901323318481,
+      "map_cls": 4.432844638824463,
+      "map_reg": 57.10551834106445,
+      "map_feat_vs_full_last": 1.064121961593628
+    },
+    {
+      "frame": 21,
+      "scene_start": false,
+      "det_cls": 5.911530017852783,
+      "det_reg": 97.35514068603516,
+      "det_feat_vs_full_last": 1.130325436592102,
+      "map_cls": 4.51313591003418,
+      "map_reg": 63.694679260253906,
+      "map_feat_vs_full_last": 1.0715656280517578
+    },
+    {
+      "frame": 22,
+      "scene_start": false,
+      "det_cls": 6.107833385467529,
+      "det_reg": 97.59584045410156,
+      "det_feat_vs_full_last": 1.1435630321502686,
+      "map_cls": 4.949437141418457,
+      "map_reg": 61.673553466796875,
+      "map_feat_vs_full_last": 1.060377597808838
+    },
+    {
+      "frame": 23,
+      "scene_start": false,
+      "det_cls": 6.411923408508301,
+      "det_reg": 102.21549987792969,
+      "det_feat_vs_full_last": 1.1395188570022583,
+      "map_cls": 4.17734432220459,
+      "map_reg": 62.213157653808594,
+      "map_feat_vs_full_last": 1.0698076486587524
+    },
+    {
+      "frame": 24,
+      "scene_start": false,
+      "det_cls": 5.781328201293945,
+      "det_reg": 93.38351440429688,
+      "det_feat_vs_full_last": 1.1366125345230103,
+      "map_cls": 4.133199691772461,
+      "map_reg": 67.88996887207031,
+      "map_feat_vs_full_last": 1.0686712265014648
+    },
+    {
+      "frame": 25,
+      "scene_start": false,
+      "det_cls": 5.676007270812988,
+      "det_reg": 100.15843200683594,
+      "det_feat_vs_full_last": 1.1339056491851807,
+      "map_cls": 4.894104957580566,
+      "map_reg": 61.15880584716797,
+      "map_feat_vs_full_last": 1.0635969638824463
+    },
+    {
+      "frame": 26,
+      "scene_start": false,
+      "det_cls": 6.116908550262451,
+      "det_reg": 104.34286499023438,
+      "det_feat_vs_full_last": 1.1324265003204346,
+      "map_cls": 5.3221235275268555,
+      "map_reg": 57.60513687133789,
+      "map_feat_vs_full_last": 1.0714091062545776
+    },
+    {
+      "frame": 27,
+      "scene_start": false,
+      "det_cls": 6.234139442443848,
+      "det_reg": 108.47650146484375,
+      "det_feat_vs_full_last": 1.1329492330551147,
+      "map_cls": 5.498098850250244,
+      "map_reg": 58.71681213378906,
+      "map_feat_vs_full_last": 1.0729314088821411
+    },
+    {
+      "frame": 28,
+      "scene_start": false,
+      "det_cls": 7.093751907348633,
+      "det_reg": 103.20743560791016,
+      "det_feat_vs_full_last": 1.1311659812927246,
+      "map_cls": 5.434194564819336,
+      "map_reg": 58.360939025878906,
+      "map_feat_vs_full_last": 1.0679595470428467
+    },
+    {
+      "frame": 29,
+      "scene_start": false,
+      "det_cls": 8.58774185180664,
+      "det_reg": 107.81468200683594,
+      "det_feat_vs_full_last": 1.1338074207305908,
+      "map_cls": 5.779227256774902,
+      "map_reg": 60.057762145996094,
+      "map_feat_vs_full_last": 1.0672029256820679
+    },
+    {
+      "frame": 30,
+      "scene_start": false,
+      "det_cls": 6.864472389221191,
+      "det_reg": 110.52474975585938,
+      "det_feat_vs_full_last": 1.1253513097763062,
+      "map_cls": 5.9110002517700195,
+      "map_reg": 58.89457702636719,
+      "map_feat_vs_full_last": 1.070759654045105
+    },
+    {
+      "frame": 31,
+      "scene_start": false,
+      "det_cls": 6.5264573097229,
+      "det_reg": 112.42839050292969,
+      "det_feat_vs_full_last": 1.13337242603302,
+      "map_cls": 6.25070333480835,
+      "map_reg": 58.809844970703125,
+      "map_feat_vs_full_last": 1.068774700164795
+    },
+    {
+      "frame": 32,
+      "scene_start": false,
+      "det_cls": 6.776652812957764,
+      "det_reg": 120.14108276367188,
+      "det_feat_vs_full_last": 1.1361548900604248,
+      "map_cls": 6.4411773681640625,
+      "map_reg": 62.086578369140625,
+      "map_feat_vs_full_last": 1.0660107135772705
+    },
+    {
+      "frame": 33,
+      "scene_start": false,
+      "det_cls": 6.856448650360107,
+      "det_reg": 120.61511993408203,
+      "det_feat_vs_full_last": 1.131800889968872,
+      "map_cls": 6.114878177642822,
+      "map_reg": 58.549415588378906,
+      "map_feat_vs_full_last": 1.0649375915527344
+    },
+    {
+      "frame": 34,
+      "scene_start": false,
+      "det_cls": 6.634131908416748,
+      "det_reg": 108.87849426269531,
+      "det_feat_vs_full_last": 1.1270289421081543,
+      "map_cls": 6.382141590118408,
+      "map_reg": 57.2083854675293,
+      "map_feat_vs_full_last": 1.0633702278137207
+    },
+    {
+      "frame": 35,
+      "scene_start": false,
+      "det_cls": 6.971531391143799,
+      "det_reg": 109.35296630859375,
+      "det_feat_vs_full_last": 1.136999249458313,
+      "map_cls": 6.126996994018555,
+      "map_reg": 59.407814025878906,
+      "map_feat_vs_full_last": 1.0641694068908691
+    },
+    {
+      "frame": 36,
+      "scene_start": false,
+      "det_cls": 6.171192169189453,
+      "det_reg": 110.08657836914062,
+      "det_feat_vs_full_last": 1.1369017362594604,
+      "map_cls": 5.9833664894104,
+      "map_reg": 53.08452224731445,
+      "map_feat_vs_full_last": 1.0661203861236572
+    },
+    {
+      "frame": 37,
+      "scene_start": false,
+      "det_cls": 6.451889514923096,
+      "det_reg": 112.55461883544922,
+      "det_feat_vs_full_last": 1.1329842805862427,
+      "map_cls": 5.808359622955322,
+      "map_reg": 58.68476104736328,
+      "map_feat_vs_full_last": 1.0747653245925903
+    },
+    {
+      "frame": 38,
+      "scene_start": false,
+      "det_cls": 7.469699859619141,
+      "det_reg": 109.45187377929688,
+      "det_feat_vs_full_last": 1.1296229362487793,
+      "map_cls": 6.430410861968994,
+      "map_reg": 56.629940032958984,
+      "map_feat_vs_full_last": 1.0724971294403076
+    },
+    {
+      "frame": 39,
+      "scene_start": true,
+      "det_cls": 1.6694345474243164,
+      "det_reg": 1.5401439666748047,
+      "det_feat_vs_full_last": 1.1351053714752197,
+      "map_cls": 1.5345287322998047,
+      "map_reg": 17.07088851928711,
+      "map_feat_vs_full_last": 1.0811681747436523
+    },
+    {
+      "frame": 40,
+      "scene_start": false,
+      "det_cls": 4.73961067199707,
+      "det_reg": 94.7107162475586,
+      "det_feat_vs_full_last": 1.1341081857681274,
+      "map_cls": 4.008538246154785,
+      "map_reg": 39.775550842285156,
+      "map_feat_vs_full_last": 1.0728508234024048
+    },
+    {
+      "frame": 41,
+      "scene_start": false,
+      "det_cls": 5.662735939025879,
+      "det_reg": 102.45028686523438,
+      "det_feat_vs_full_last": 1.1498266458511353,
+      "map_cls": 5.020133972167969,
+      "map_reg": 51.714656829833984,
+      "map_feat_vs_full_last": 1.0713802576065063
+    },
+    {
+      "frame": 42,
+      "scene_start": false,
+      "det_cls": 5.316162109375,
+      "det_reg": 104.53933715820312,
+      "det_feat_vs_full_last": 1.1303675174713135,
+      "map_cls": 4.630434036254883,
+      "map_reg": 50.26612091064453,
+      "map_feat_vs_full_last": 1.0740160942077637
+    },
+    {
+      "frame": 43,
+      "scene_start": false,
+      "det_cls": 5.5815019607543945,
+      "det_reg": 110.89688110351562,
+      "det_feat_vs_full_last": 1.129227876663208,
+      "map_cls": 5.880795001983643,
+      "map_reg": 48.806556701660156,
+      "map_feat_vs_full_last": 1.0726834535598755
+    },
+    {
+      "frame": 44,
+      "scene_start": false,
+      "det_cls": 6.1145453453063965,
+      "det_reg": 105.43043518066406,
+      "det_feat_vs_full_last": 1.1247159242630005,
+      "map_cls": 5.800203323364258,
+      "map_reg": 54.2532958984375,
+      "map_feat_vs_full_last": 1.0832210779190063
+    },
+    {
+      "frame": 45,
+      "scene_start": false,
+      "det_cls": 5.2453155517578125,
+      "det_reg": 105.40904235839844,
+      "det_feat_vs_full_last": 1.132662057876587,
+      "map_cls": 4.7529778480529785,
+      "map_reg": 58.707237243652344,
+      "map_feat_vs_full_last": 1.0906904935836792
+    },
+    {
+      "frame": 46,
+      "scene_start": false,
+      "det_cls": 5.451086044311523,
+      "det_reg": 107.53497314453125,
+      "det_feat_vs_full_last": 1.144625186920166,
+      "map_cls": 4.503478050231934,
+      "map_reg": 60.900386810302734,
+      "map_feat_vs_full_last": 1.0935354232788086
+    },
+    {
+      "frame": 47,
+      "scene_start": false,
+      "det_cls": 5.458522796630859,
+      "det_reg": 119.05119323730469,
+      "det_feat_vs_full_last": 1.1368145942687988,
+      "map_cls": 4.597434043884277,
+      "map_reg": 62.384857177734375,
+      "map_feat_vs_full_last": 1.0940598249435425
+    },
+    {
+      "frame": 48,
+      "scene_start": false,
+      "det_cls": 5.625576019287109,
+      "det_reg": 103.55905151367188,
+      "det_feat_vs_full_last": 1.1329187154769897,
+      "map_cls": 4.366549491882324,
+      "map_reg": 63.44258117675781,
+      "map_feat_vs_full_last": 1.0930095911026
+    },
+    {
+      "frame": 49,
+      "scene_start": false,
+      "det_cls": 5.75538969039917,
+      "det_reg": 119.63090515136719,
+      "det_feat_vs_full_last": 1.130045771598816,
+      "map_cls": 4.421669006347656,
+      "map_reg": 71.63729095458984,
+      "map_feat_vs_full_last": 1.0839039087295532
+    },
+    {
+      "frame": 50,
+      "scene_start": false,
+      "det_cls": 6.031712055206299,
+      "det_reg": 116.3284683227539,
+      "det_feat_vs_full_last": 1.1376835107803345,
+      "map_cls": 4.590622425079346,
+      "map_reg": 69.2981948852539,
+      "map_feat_vs_full_last": 1.0763611793518066
+    },
+    {
+      "frame": 51,
+      "scene_start": false,
+      "det_cls": 6.231463432312012,
+      "det_reg": 120.08242797851562,
+      "det_feat_vs_full_last": 1.1382410526275635,
+      "map_cls": 4.6077985763549805,
+      "map_reg": 66.75326538085938,
+      "map_feat_vs_full_last": 1.0740200281143188
+    },
+    {
+      "frame": 52,
+      "scene_start": false,
+      "det_cls": 7.533318042755127,
+      "det_reg": 121.20964813232422,
+      "det_feat_vs_full_last": 1.1353366374969482,
+      "map_cls": 4.342656135559082,
+      "map_reg": 66.05093383789062,
+      "map_feat_vs_full_last": 1.0684067010879517
+    },
+    {
+      "frame": 53,
+      "scene_start": false,
+      "det_cls": 7.80682373046875,
+      "det_reg": 129.49522399902344,
+      "det_feat_vs_full_last": 1.1315622329711914,
+      "map_cls": 4.751225471496582,
+      "map_reg": 64.2013168334961,
+      "map_feat_vs_full_last": 1.0728734731674194
+    },
+    {
+      "frame": 54,
+      "scene_start": false,
+      "det_cls": 7.301501750946045,
+      "det_reg": 123.3612060546875,
+      "det_feat_vs_full_last": 1.1336705684661865,
+      "map_cls": 4.566042900085449,
+      "map_reg": 70.67554473876953,
+      "map_feat_vs_full_last": 1.0757617950439453
+    },
+    {
+      "frame": 55,
+      "scene_start": false,
+      "det_cls": 8.281977653503418,
+      "det_reg": 124.8154296875,
+      "det_feat_vs_full_last": 1.128173589706421,
+      "map_cls": 4.910219669342041,
+      "map_reg": 74.14490509033203,
+      "map_feat_vs_full_last": 1.0738447904586792
+    },
+    {
+      "frame": 56,
+      "scene_start": false,
+      "det_cls": 8.13725471496582,
+      "det_reg": 131.2261505126953,
+      "det_feat_vs_full_last": 1.128533124923706,
+      "map_cls": 4.876711845397949,
+      "map_reg": 72.8228988647461,
+      "map_feat_vs_full_last": 1.0797622203826904
+    },
+    {
+      "frame": 57,
+      "scene_start": false,
+      "det_cls": 7.9529852867126465,
+      "det_reg": 98.80071258544922,
+      "det_feat_vs_full_last": 1.1230145692825317,
+      "map_cls": 4.823117256164551,
+      "map_reg": 77.00883483886719,
+      "map_feat_vs_full_last": 1.0750558376312256
+    },
+    {
+      "frame": 58,
+      "scene_start": false,
+      "det_cls": 6.896419525146484,
+      "det_reg": 97.53690338134766,
+      "det_feat_vs_full_last": 1.138190507888794,
+      "map_cls": 4.70720911026001,
+      "map_reg": 69.54974365234375,
+      "map_feat_vs_full_last": 1.0782471895217896
+    },
+    {
+      "frame": 59,
+      "scene_start": false,
+      "det_cls": 5.807422161102295,
+      "det_reg": 89.60052490234375,
+      "det_feat_vs_full_last": 1.1449835300445557,
+      "map_cls": 4.410048007965088,
+      "map_reg": 70.14234924316406,
+      "map_feat_vs_full_last": 1.0804083347320557
+    },
+    {
+      "frame": 60,
+      "scene_start": false,
+      "det_cls": 5.66993522644043,
+      "det_reg": 90.55126953125,
+      "det_feat_vs_full_last": 1.1433223485946655,
+      "map_cls": 4.165798187255859,
+      "map_reg": 74.27693939208984,
+      "map_feat_vs_full_last": 1.0807406902313232
+    },
+    {
+      "frame": 61,
+      "scene_start": false,
+      "det_cls": 5.270407676696777,
+      "det_reg": 86.80046844482422,
+      "det_feat_vs_full_last": 1.1405754089355469,
+      "map_cls": 5.63631010055542,
+      "map_reg": 73.0553207397461,
+      "map_feat_vs_full_last": 1.083351969718933
+    },
+    {
+      "frame": 62,
+      "scene_start": false,
+      "det_cls": 5.442009925842285,
+      "det_reg": 100.16637420654297,
+      "det_feat_vs_full_last": 1.1371963024139404,
+      "map_cls": 4.654172420501709,
+      "map_reg": 54.17570495605469,
+      "map_feat_vs_full_last": 1.081795334815979
+    },
+    {
+      "frame": 63,
+      "scene_start": false,
+      "det_cls": 5.40219259262085,
+      "det_reg": 94.41709899902344,
+      "det_feat_vs_full_last": 1.1268702745437622,
+      "map_cls": 4.353453636169434,
+      "map_reg": 57.24223327636719,
+      "map_feat_vs_full_last": 1.0782382488250732
+    },
+    {
+      "frame": 64,
+      "scene_start": false,
+      "det_cls": 5.456506729125977,
+      "det_reg": 95.54173278808594,
+      "det_feat_vs_full_last": 1.133947491645813,
+      "map_cls": 5.094015598297119,
+      "map_reg": 69.69733428955078,
+      "map_feat_vs_full_last": 1.0825105905532837
+    },
+    {
+      "frame": 65,
+      "scene_start": false,
+      "det_cls": 5.136302947998047,
+      "det_reg": 99.81443786621094,
+      "det_feat_vs_full_last": 1.1297460794448853,
+      "map_cls": 4.075017929077148,
+      "map_reg": 64.17723083496094,
+      "map_feat_vs_full_last": 1.0791734457015991
+    },
+    {
+      "frame": 66,
+      "scene_start": false,
+      "det_cls": 5.8915934562683105,
+      "det_reg": 104.04164123535156,
+      "det_feat_vs_full_last": 1.1268963813781738,
+      "map_cls": 4.135324478149414,
+      "map_reg": 59.85810852050781,
+      "map_feat_vs_full_last": 1.0804346799850464
+    },
+    {
+      "frame": 67,
+      "scene_start": false,
+      "det_cls": 6.027951240539551,
+      "det_reg": 110.39302062988281,
+      "det_feat_vs_full_last": 1.1248366832733154,
+      "map_cls": 3.6326496601104736,
+      "map_reg": 71.21038055419922,
+      "map_feat_vs_full_last": 1.0867369174957275
+    },
+    {
+      "frame": 68,
+      "scene_start": false,
+      "det_cls": 6.0995073318481445,
+      "det_reg": 114.88699340820312,
+      "det_feat_vs_full_last": 1.1148738861083984,
+      "map_cls": 3.8234121799468994,
+      "map_reg": 71.40911102294922,
+      "map_feat_vs_full_last": 1.0892002582550049
+    },
+    {
+      "frame": 69,
+      "scene_start": false,
+      "det_cls": 6.212882041931152,
+      "det_reg": 122.46916198730469,
+      "det_feat_vs_full_last": 1.1186267137527466,
+      "map_cls": 4.075437545776367,
+      "map_reg": 81.60885620117188,
+      "map_feat_vs_full_last": 1.0908089876174927
+    },
+    {
+      "frame": 70,
+      "scene_start": false,
+      "det_cls": 4.936047077178955,
+      "det_reg": 121.79364013671875,
+      "det_feat_vs_full_last": 1.14070463180542,
+      "map_cls": 3.7239482402801514,
+      "map_reg": 62.19207000732422,
+      "map_feat_vs_full_last": 1.0850458145141602
+    },
+    {
+      "frame": 71,
+      "scene_start": false,
+      "det_cls": 5.576625823974609,
+      "det_reg": 125.52241516113281,
+      "det_feat_vs_full_last": 1.1400527954101562,
+      "map_cls": 4.315562725067139,
+      "map_reg": 67.86092376708984,
+      "map_feat_vs_full_last": 1.080313801765442
+    },
+    {
+      "frame": 72,
+      "scene_start": false,
+      "det_cls": 5.672995567321777,
+      "det_reg": 124.99412536621094,
+      "det_feat_vs_full_last": 1.1633706092834473,
+      "map_cls": 4.499032020568848,
+      "map_reg": 57.136932373046875,
+      "map_feat_vs_full_last": 1.0753201246261597
+    },
+    {
+      "frame": 73,
+      "scene_start": false,
+      "det_cls": 6.522726058959961,
+      "det_reg": 133.80224609375,
+      "det_feat_vs_full_last": 1.152559757232666,
+      "map_cls": 3.007526159286499,
+      "map_reg": 61.25417709350586,
+      "map_feat_vs_full_last": 1.079723596572876
+    },
+    {
+      "frame": 74,
+      "scene_start": false,
+      "det_cls": 5.884510040283203,
+      "det_reg": 134.0987548828125,
+      "det_feat_vs_full_last": 1.1585569381713867,
+      "map_cls": 4.307093620300293,
+      "map_reg": 57.685386657714844,
+      "map_feat_vs_full_last": 1.086193561553955
+    },
+    {
+      "frame": 75,
+      "scene_start": false,
+      "det_cls": 5.755960464477539,
+      "det_reg": 144.40301513671875,
+      "det_feat_vs_full_last": 1.162785291671753,
+      "map_cls": 4.390097618103027,
+      "map_reg": 61.61901092529297,
+      "map_feat_vs_full_last": 1.0742671489715576
+    },
+    {
+      "frame": 76,
+      "scene_start": false,
+      "det_cls": 5.819180965423584,
+      "det_reg": 135.87832641601562,
+      "det_feat_vs_full_last": 1.1655901670455933,
+      "map_cls": 4.277519226074219,
+      "map_reg": 55.277748107910156,
+      "map_feat_vs_full_last": 1.0696271657943726
+    },
+    {
+      "frame": 77,
+      "scene_start": false,
+      "det_cls": 5.904238700866699,
+      "det_reg": 146.43128967285156,
+      "det_feat_vs_full_last": 1.149314045906067,
+      "map_cls": 4.242127418518066,
+      "map_reg": 63.832855224609375,
+      "map_feat_vs_full_last": 1.072757363319397
+    },
+    {
+      "frame": 78,
+      "scene_start": false,
+      "det_cls": 5.8977885246276855,
+      "det_reg": 146.3460693359375,
+      "det_feat_vs_full_last": 1.161254644393921,
+      "map_cls": 4.241401195526123,
+      "map_reg": 67.12098693847656,
+      "map_feat_vs_full_last": 1.0706623792648315
+    },
+    {
+      "frame": 79,
+      "scene_start": true,
+      "det_cls": 1.2085800170898438,
+      "det_reg": 2.116250514984131,
+      "det_feat_vs_full_last": 1.1720443964004517,
+      "map_cls": 1.3234000205993652,
+      "map_reg": 9.511099815368652,
+      "map_feat_vs_full_last": 1.0792421102523804
+    }
+  ]
+}
