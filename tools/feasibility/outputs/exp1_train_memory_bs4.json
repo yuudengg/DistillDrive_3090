@@ -1,0 +1,1031 @@
+{
+  "batch": 4,
+  "iters": 100,
+  "cumulative_iters": 12,
+  "alloc_conf": "max_split_size_mb:128",
+  "weights": {
+    "student_trainable_MB": 329.2940483093262,
+    "teacher_frozen_MB": 43.62862014770508,
+    "other_frozen_MB": 0.8865814208984375,
+    "buffers_MB": 0.21770477294921875,
+    "trainable_params_M": 86.322459,
+    "teacher_params_M": 11.436981,
+    "total_MB": 374.0269546508789
+  },
+  "weights_alloc_measured_MB": 377.5029296875,
+  "grads_MB": 329.2940483093262,
+  "optimizer_state_MB": 658.5880966186523,
+  "inputs_MB_max": 51.60400390625,
+  "activations_MB": {
+    "max": 9071.666015625,
+    "mean": 9038.358247070313,
+    "p50": 9063.822265625
+  },
+  "peak_allocated_MB_max": 10558.2529296875,
+  "peak_allocated_iter": 56,
+  "peak_reserved_MB_max": 14526.0,
+  "nvidia_smi_process_MB_end": 16554.0,
+  "gpu_total_MB": 24090.5,
+  "per_iter": [
+    {
+      "it": 0,
+      "stepped": false,
+      "static_before_MB": 377.5029296875,
+      "inputs_MB": 51.60400390625,
+      "activations_MB": 6549.45361328125,
+      "peak_allocated_MB": 6978.560546875,
+      "peak_reserved_MB": 9882.0,
+      "loss": 18.653545379638672
+    },
+    {
+      "it": 1,
+      "stepped": false,
+      "static_before_MB": 784.5224609375,
+      "inputs_MB": 1.6103515625,
+      "activations_MB": 9061.0341796875,
+      "peak_allocated_MB": 9847.1669921875,
+      "peak_reserved_MB": 13534.0,
+      "loss": 18.814987182617188
+    },
+    {
+      "it": 2,
+      "stepped": false,
+      "static_before_MB": 793.98486328125,
+      "inputs_MB": 1.61669921875,
+      "activations_MB": 9059.59228515625,
+      "peak_allocated_MB": 9855.19384765625,
+      "peak_reserved_MB": 13688.0,
+      "loss": 18.752819061279297
+    },
+    {
+      "it": 3,
+      "stepped": false,
+      "static_before_MB": 801.99609375,
+      "inputs_MB": 1.6328125,
+      "activations_MB": 9058.30859375,
+      "peak_allocated_MB": 9861.9375,
+      "peak_reserved_MB": 13820.0,
+      "loss": 17.92544937133789
+    },
+    {
+      "it": 4,
+      "stepped": false,
+      "static_before_MB": 811.02587890625,
+      "inputs_MB": 1.642578125,
+      "activations_MB": 9057.6591796875,
+      "peak_allocated_MB": 9870.32763671875,
+      "peak_reserved_MB": 13820.0,
+      "loss": 17.806777954101562
+    },
+    {
+      "it": 5,
+      "stepped": false,
+      "static_before_MB": 810.42236328125,
+      "inputs_MB": 1.642578125,
+      "activations_MB": 9064.462890625,
+      "peak_allocated_MB": 9876.52783203125,
+      "peak_reserved_MB": 13820.0,
+      "loss": 17.356409072875977
+    },
+    {
+      "it": 6,
+      "stepped": false,
+      "static_before_MB": 811.4384765625,
+      "inputs_MB": 1.64892578125,
+      "activations_MB": 9054.83837890625,
+      "peak_allocated_MB": 9867.92578125,
+      "peak_reserved_MB": 13820.0,
+      "loss": 19.424510955810547
+    },
+    {
+      "it": 7,
+      "stepped": false,
+      "static_before_MB": 810.1357421875,
+      "inputs_MB": 1.65478515625,
+      "activations_MB": 9058.12646484375,
+      "peak_allocated_MB": 9869.9169921875,
+      "peak_reserved_MB": 13820.0,
+      "loss": 19.39454460144043
+    },
+    {
+      "it": 8,
+      "stepped": false,
+      "static_before_MB": 810.1416015625,
+      "inputs_MB": 1.63671875,
+      "activations_MB": 9069.38134765625,
+      "peak_allocated_MB": 9881.15966796875,
+      "peak_reserved_MB": 13820.0,
+      "loss": 19.045289993286133
+    },
+    {
+      "it": 9,
+      "stepped": false,
+      "static_before_MB": 811.4326171875,
+      "inputs_MB": 1.63818359375,
+      "activations_MB": 9063.83447265625,
+      "peak_allocated_MB": 9876.9052734375,
+      "peak_reserved_MB": 13820.0,
+      "loss": 18.428464889526367
+    },
+    {
+      "it": 10,
+      "stepped": false,
+      "static_before_MB": 810.52783203125,
+      "inputs_MB": 1.62646484375,
+      "activations_MB": 9054.5595703125,
+      "peak_allocated_MB": 9866.7138671875,
+      "peak_reserved_MB": 13820.0,
+      "loss": 19.149303436279297
+    },
+    {
+      "it": 11,
+      "stepped": true,
+      "static_before_MB": 810.11328125,
+      "inputs_MB": 1.61572265625,
+      "activations_MB": 9066.275390625,
+      "peak_allocated_MB": 9878.00439453125,
+      "peak_reserved_MB": 13820.0,
+      "loss": 19.94524383544922
+    },
+    {
+      "it": 12,
+      "stepped": false,
+      "static_before_MB": 1485.51416015625,
+      "inputs_MB": 1.60791015625,
+      "activations_MB": 9061.6279296875,
+      "peak_allocated_MB": 10548.75,
+      "peak_reserved_MB": 14478.0,
+      "loss": 22.351516723632812
+    },
+    {
+      "it": 13,
+      "stepped": false,
+      "static_before_MB": 1484.30712890625,
+      "inputs_MB": 1.6083984375,
+      "activations_MB": 9061.98681640625,
+      "peak_allocated_MB": 10547.90234375,
+      "peak_reserved_MB": 14478.0,
+      "loss": 22.07196807861328
+    },
+    {
+      "it": 14,
+      "stepped": false,
+      "static_before_MB": 1484.3076171875,
+      "inputs_MB": 1.60302734375,
+      "activations_MB": 9065.29296875,
+      "peak_allocated_MB": 10551.20361328125,
+      "peak_reserved_MB": 14480.0,
+      "loss": 21.756771087646484
+    },
+    {
+      "it": 15,
+      "stepped": false,
+      "static_before_MB": 1484.30224609375,
+      "inputs_MB": 1.60693359375,
+      "activations_MB": 9066.0283203125,
+      "peak_allocated_MB": 10551.9375,
+      "peak_reserved_MB": 14482.0,
+      "loss": 21.6220703125
+    },
+    {
+      "it": 16,
+      "stepped": false,
+      "static_before_MB": 1484.30615234375,
+      "inputs_MB": 1.60791015625,
+      "activations_MB": 9062.79296875,
+      "peak_allocated_MB": 10548.70703125,
+      "peak_reserved_MB": 14482.0,
+      "loss": 21.441537857055664
+    },
+    {
+      "it": 17,
+      "stepped": false,
+      "static_before_MB": 1484.30712890625,
+      "inputs_MB": 1.5966796875,
+      "activations_MB": 9063.45703125,
+      "peak_allocated_MB": 10549.36083984375,
+      "peak_reserved_MB": 14482.0,
+      "loss": 21.720853805541992
+    },
+    {
+      "it": 18,
+      "stepped": false,
+      "static_before_MB": 1484.2958984375,
+      "inputs_MB": 1.603515625,
+      "activations_MB": 9063.92626953125,
+      "peak_allocated_MB": 10549.82568359375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 22.242244720458984
+    },
+    {
+      "it": 19,
+      "stepped": false,
+      "static_before_MB": 1484.302734375,
+      "inputs_MB": 1.625,
+      "activations_MB": 9062.94580078125,
+      "peak_allocated_MB": 10548.87353515625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.92440414428711
+    },
+    {
+      "it": 20,
+      "stepped": false,
+      "static_before_MB": 1484.32421875,
+      "inputs_MB": 1.56689453125,
+      "activations_MB": 9064.7890625,
+      "peak_allocated_MB": 10550.68017578125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.595829010009766
+    },
+    {
+      "it": 21,
+      "stepped": false,
+      "static_before_MB": 1484.26611328125,
+      "inputs_MB": 1.5673828125,
+      "activations_MB": 9070.046875,
+      "peak_allocated_MB": 10555.88037109375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.134618759155273
+    },
+    {
+      "it": 22,
+      "stepped": false,
+      "static_before_MB": 1484.2666015625,
+      "inputs_MB": 1.5625,
+      "activations_MB": 9061.78173828125,
+      "peak_allocated_MB": 10547.61083984375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.115955352783203
+    },
+    {
+      "it": 23,
+      "stepped": true,
+      "static_before_MB": 1484.26171875,
+      "inputs_MB": 1.55517578125,
+      "activations_MB": 9056.57568359375,
+      "peak_allocated_MB": 10542.392578125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.739328384399414
+    },
+    {
+      "it": 24,
+      "stepped": false,
+      "static_before_MB": 1484.25439453125,
+      "inputs_MB": 1.556640625,
+      "activations_MB": 9060.41845703125,
+      "peak_allocated_MB": 10546.2294921875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.45870590209961
+    },
+    {
+      "it": 25,
+      "stepped": false,
+      "static_before_MB": 1484.255859375,
+      "inputs_MB": 1.5517578125,
+      "activations_MB": 9068.71826171875,
+      "peak_allocated_MB": 10554.52587890625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.91233253479004
+    },
+    {
+      "it": 26,
+      "stepped": false,
+      "static_before_MB": 1485.1572265625,
+      "inputs_MB": 1.5517578125,
+      "activations_MB": 9069.10009765625,
+      "peak_allocated_MB": 10555.80908203125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.038537979125977
+    },
+    {
+      "it": 27,
+      "stepped": false,
+      "static_before_MB": 1485.1572265625,
+      "inputs_MB": 1.55078125,
+      "activations_MB": 9068.2275390625,
+      "peak_allocated_MB": 10554.935546875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.43113136291504
+    },
+    {
+      "it": 28,
+      "stepped": false,
+      "static_before_MB": 1485.15625,
+      "inputs_MB": 1.55078125,
+      "activations_MB": 9069.5322265625,
+      "peak_allocated_MB": 10556.2392578125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 17.772912979125977
+    },
+    {
+      "it": 29,
+      "stepped": false,
+      "static_before_MB": 1485.15625,
+      "inputs_MB": 1.5517578125,
+      "activations_MB": 9061.98828125,
+      "peak_allocated_MB": 10548.6962890625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.089130401611328
+    },
+    {
+      "it": 30,
+      "stepped": false,
+      "static_before_MB": 1485.1572265625,
+      "inputs_MB": 1.5576171875,
+      "activations_MB": 9061.88720703125,
+      "peak_allocated_MB": 10548.60205078125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.648860931396484
+    },
+    {
+      "it": 31,
+      "stepped": false,
+      "static_before_MB": 1484.2568359375,
+      "inputs_MB": 1.5517578125,
+      "activations_MB": 9065.4609375,
+      "peak_allocated_MB": 10551.26953125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.999488830566406
+    },
+    {
+      "it": 32,
+      "stepped": false,
+      "static_before_MB": 1484.2509765625,
+      "inputs_MB": 1.5576171875,
+      "activations_MB": 9064.9560546875,
+      "peak_allocated_MB": 10550.7646484375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.58370018005371
+    },
+    {
+      "it": 33,
+      "stepped": false,
+      "static_before_MB": 1484.2568359375,
+      "inputs_MB": 1.5517578125,
+      "activations_MB": 9067.736328125,
+      "peak_allocated_MB": 10553.544921875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.597980499267578
+    },
+    {
+      "it": 34,
+      "stepped": false,
+      "static_before_MB": 1484.2509765625,
+      "inputs_MB": 1.552734375,
+      "activations_MB": 9064.94873046875,
+      "peak_allocated_MB": 10550.75244140625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.093318939208984
+    },
+    {
+      "it": 35,
+      "stepped": true,
+      "static_before_MB": 1484.251953125,
+      "inputs_MB": 1.5576171875,
+      "activations_MB": 9071.666015625,
+      "peak_allocated_MB": 10557.4755859375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.82891845703125
+    },
+    {
+      "it": 36,
+      "stepped": false,
+      "static_before_MB": 1484.2568359375,
+      "inputs_MB": 1.5693359375,
+      "activations_MB": 9070.7314453125,
+      "peak_allocated_MB": 10556.5576171875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.206066131591797
+    },
+    {
+      "it": 37,
+      "stepped": false,
+      "static_before_MB": 1484.2685546875,
+      "inputs_MB": 1.58154296875,
+      "activations_MB": 9061.37353515625,
+      "peak_allocated_MB": 10547.2236328125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.040019989013672
+    },
+    {
+      "it": 38,
+      "stepped": false,
+      "static_before_MB": 1484.28076171875,
+      "inputs_MB": 1.58154296875,
+      "activations_MB": 9063.81005859375,
+      "peak_allocated_MB": 10549.67236328125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.573680877685547
+    },
+    {
+      "it": 39,
+      "stepped": false,
+      "static_before_MB": 1484.28076171875,
+      "inputs_MB": 1.59912109375,
+      "activations_MB": 9064.48486328125,
+      "peak_allocated_MB": 10550.36474609375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.30992889404297
+    },
+    {
+      "it": 40,
+      "stepped": false,
+      "static_before_MB": 1484.59130859375,
+      "inputs_MB": 1.63623046875,
+      "activations_MB": 9066.44580078125,
+      "peak_allocated_MB": 10552.67333984375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.60627555847168
+    },
+    {
+      "it": 41,
+      "stepped": false,
+      "static_before_MB": 1484.62841796875,
+      "inputs_MB": 1.65380859375,
+      "activations_MB": 9059.00732421875,
+      "peak_allocated_MB": 10545.28955078125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.745513916015625
+    },
+    {
+      "it": 42,
+      "stepped": false,
+      "static_before_MB": 1484.35302734375,
+      "inputs_MB": 1.65380859375,
+      "activations_MB": 9066.00244140625,
+      "peak_allocated_MB": 10552.00927734375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.435611724853516
+    },
+    {
+      "it": 43,
+      "stepped": false,
+      "static_before_MB": 1484.35302734375,
+      "inputs_MB": 1.65576171875,
+      "activations_MB": 9057.0419921875,
+      "peak_allocated_MB": 10543.05078125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.34683609008789
+    },
+    {
+      "it": 44,
+      "stepped": false,
+      "static_before_MB": 1484.3564453125,
+      "inputs_MB": 1.6552734375,
+      "activations_MB": 9064.3056640625,
+      "peak_allocated_MB": 10550.3173828125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.523895263671875
+    },
+    {
+      "it": 45,
+      "stepped": false,
+      "static_before_MB": 1485.2607421875,
+      "inputs_MB": 1.6494140625,
+      "activations_MB": 9064.5283203125,
+      "peak_allocated_MB": 10551.4384765625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.528297424316406
+    },
+    {
+      "it": 46,
+      "stepped": false,
+      "static_before_MB": 1484.6416015625,
+      "inputs_MB": 1.64990234375,
+      "activations_MB": 9059.20751953125,
+      "peak_allocated_MB": 10545.4990234375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.269710540771484
+    },
+    {
+      "it": 47,
+      "stepped": true,
+      "static_before_MB": 1484.34912109375,
+      "inputs_MB": 1.6494140625,
+      "activations_MB": 9062.55126953125,
+      "peak_allocated_MB": 10548.5498046875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.5750789642334
+    },
+    {
+      "it": 48,
+      "stepped": false,
+      "static_before_MB": 1485.2548828125,
+      "inputs_MB": 1.63427734375,
+      "activations_MB": 9063.9697265625,
+      "peak_allocated_MB": 10550.85888671875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.1130313873291
+    },
+    {
+      "it": 49,
+      "stepped": false,
+      "static_before_MB": 1485.24072265625,
+      "inputs_MB": 1.63427734375,
+      "activations_MB": 9065.89306640625,
+      "peak_allocated_MB": 10552.76806640625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.681833267211914
+    },
+    {
+      "it": 50,
+      "stepped": false,
+      "static_before_MB": 1484.3349609375,
+      "inputs_MB": 1.6396484375,
+      "activations_MB": 9060.7822265625,
+      "peak_allocated_MB": 10546.7568359375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.497411727905273
+    },
+    {
+      "it": 51,
+      "stepped": false,
+      "static_before_MB": 1484.34033203125,
+      "inputs_MB": 1.64013671875,
+      "activations_MB": 9065.31396484375,
+      "peak_allocated_MB": 10551.29443359375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.771717071533203
+    },
+    {
+      "it": 52,
+      "stepped": false,
+      "static_before_MB": 1484.6337890625,
+      "inputs_MB": 1.65283203125,
+      "activations_MB": 9062.45654296875,
+      "peak_allocated_MB": 10548.7431640625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.416709899902344
+    },
+    {
+      "it": 53,
+      "stepped": false,
+      "static_before_MB": 1485.25927734375,
+      "inputs_MB": 1.65185546875,
+      "activations_MB": 9067.087890625,
+      "peak_allocated_MB": 10553.9990234375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.452444076538086
+    },
+    {
+      "it": 54,
+      "stepped": false,
+      "static_before_MB": 1484.35205078125,
+      "inputs_MB": 1.65283203125,
+      "activations_MB": 9064.572265625,
+      "peak_allocated_MB": 10550.5771484375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 17.657325744628906
+    },
+    {
+      "it": 55,
+      "stepped": false,
+      "static_before_MB": 1485.25927734375,
+      "inputs_MB": 1.66455078125,
+      "activations_MB": 9061.34619140625,
+      "peak_allocated_MB": 10548.27001953125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 17.391695022583008
+    },
+    {
+      "it": 56,
+      "stepped": false,
+      "static_before_MB": 1485.27099609375,
+      "inputs_MB": 1.6630859375,
+      "activations_MB": 9071.31884765625,
+      "peak_allocated_MB": 10558.2529296875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 17.63946533203125
+    },
+    {
+      "it": 57,
+      "stepped": false,
+      "static_before_MB": 1484.3623046875,
+      "inputs_MB": 1.6630859375,
+      "activations_MB": 9060.46240234375,
+      "peak_allocated_MB": 10546.48779296875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 17.58694076538086
+    },
+    {
+      "it": 58,
+      "stepped": false,
+      "static_before_MB": 1484.3623046875,
+      "inputs_MB": 1.65625,
+      "activations_MB": 9066.529296875,
+      "peak_allocated_MB": 10552.5478515625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 17.316879272460938
+    },
+    {
+      "it": 59,
+      "stepped": true,
+      "static_before_MB": 1484.35546875,
+      "inputs_MB": 1.6875,
+      "activations_MB": 9062.947265625,
+      "peak_allocated_MB": 10548.990234375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.891082763671875
+    },
+    {
+      "it": 60,
+      "stepped": false,
+      "static_before_MB": 1484.38671875,
+      "inputs_MB": 1.56640625,
+      "activations_MB": 9057.91943359375,
+      "peak_allocated_MB": 10543.87255859375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 22.75548553466797
+    },
+    {
+      "it": 61,
+      "stepped": false,
+      "static_before_MB": 1484.265625,
+      "inputs_MB": 1.55322265625,
+      "activations_MB": 9062.8212890625,
+      "peak_allocated_MB": 10548.64013671875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.48225975036621
+    },
+    {
+      "it": 62,
+      "stepped": false,
+      "static_before_MB": 1484.25244140625,
+      "inputs_MB": 1.56640625,
+      "activations_MB": 9058.88525390625,
+      "peak_allocated_MB": 10544.7041015625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.96837615966797
+    },
+    {
+      "it": 63,
+      "stepped": false,
+      "static_before_MB": 1485.171875,
+      "inputs_MB": 1.56640625,
+      "activations_MB": 9059.64892578125,
+      "peak_allocated_MB": 10546.38720703125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.439271926879883
+    },
+    {
+      "it": 64,
+      "stepped": false,
+      "static_before_MB": 1484.265625,
+      "inputs_MB": 1.5732421875,
+      "activations_MB": 9064.34130859375,
+      "peak_allocated_MB": 10550.18017578125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.544565200805664
+    },
+    {
+      "it": 65,
+      "stepped": false,
+      "static_before_MB": 1484.2724609375,
+      "inputs_MB": 1.57421875,
+      "activations_MB": 9068.76025390625,
+      "peak_allocated_MB": 10554.60693359375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.467863082885742
+    },
+    {
+      "it": 66,
+      "stepped": false,
+      "static_before_MB": 1484.2734375,
+      "inputs_MB": 1.57470703125,
+      "activations_MB": 9063.9521484375,
+      "peak_allocated_MB": 10549.80029296875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.860599517822266
+    },
+    {
+      "it": 67,
+      "stepped": false,
+      "static_before_MB": 1484.27392578125,
+      "inputs_MB": 1.578125,
+      "activations_MB": 9067.9248046875,
+      "peak_allocated_MB": 10553.77685546875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 22.603103637695312
+    },
+    {
+      "it": 68,
+      "stepped": false,
+      "static_before_MB": 1484.27734375,
+      "inputs_MB": 1.58447265625,
+      "activations_MB": 9061.0888671875,
+      "peak_allocated_MB": 10546.95068359375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.488229751586914
+    },
+    {
+      "it": 69,
+      "stepped": false,
+      "static_before_MB": 1484.28369140625,
+      "inputs_MB": 1.5732421875,
+      "activations_MB": 9065.88525390625,
+      "peak_allocated_MB": 10551.7421875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 22.46993637084961
+    },
+    {
+      "it": 70,
+      "stepped": false,
+      "static_before_MB": 1485.1787109375,
+      "inputs_MB": 1.5673828125,
+      "activations_MB": 9064.92724609375,
+      "peak_allocated_MB": 10551.67333984375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.314167022705078
+    },
+    {
+      "it": 71,
+      "stepped": true,
+      "static_before_MB": 1484.2666015625,
+      "inputs_MB": 1.56787109375,
+      "activations_MB": 9071.34228515625,
+      "peak_allocated_MB": 10557.1767578125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 22.659629821777344
+    },
+    {
+      "it": 72,
+      "stepped": false,
+      "static_before_MB": 1484.26708984375,
+      "inputs_MB": 1.5673828125,
+      "activations_MB": 9064.8505859375,
+      "peak_allocated_MB": 10550.68505859375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.686969757080078
+    },
+    {
+      "it": 73,
+      "stepped": false,
+      "static_before_MB": 1484.2666015625,
+      "inputs_MB": 1.56787109375,
+      "activations_MB": 9058.18798828125,
+      "peak_allocated_MB": 10544.0224609375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.288471221923828
+    },
+    {
+      "it": 74,
+      "stepped": false,
+      "static_before_MB": 1485.17333984375,
+      "inputs_MB": 1.580078125,
+      "activations_MB": 9068.5419921875,
+      "peak_allocated_MB": 10555.29541015625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.69450569152832
+    },
+    {
+      "it": 75,
+      "stepped": false,
+      "static_before_MB": 1484.279296875,
+      "inputs_MB": 1.60205078125,
+      "activations_MB": 9068.57275390625,
+      "peak_allocated_MB": 10554.4541015625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.005632400512695
+    },
+    {
+      "it": 76,
+      "stepped": false,
+      "static_before_MB": 1484.30126953125,
+      "inputs_MB": 1.60205078125,
+      "activations_MB": 9068.62939453125,
+      "peak_allocated_MB": 10554.53271484375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.47005844116211
+    },
+    {
+      "it": 77,
+      "stepped": false,
+      "static_before_MB": 1485.20751953125,
+      "inputs_MB": 1.57763671875,
+      "activations_MB": 9062.419921875,
+      "peak_allocated_MB": 10549.205078125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.702564239501953
+    },
+    {
+      "it": 78,
+      "stepped": false,
+      "static_before_MB": 1484.27685546875,
+      "inputs_MB": 1.57177734375,
+      "activations_MB": 9065.53759765625,
+      "peak_allocated_MB": 10551.38623046875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.39889144897461
+    },
+    {
+      "it": 79,
+      "stepped": false,
+      "static_before_MB": 1484.56396484375,
+      "inputs_MB": 1.5732421875,
+      "activations_MB": 9068.3818359375,
+      "peak_allocated_MB": 10554.51904296875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.626405715942383
+    },
+    {
+      "it": 80,
+      "stepped": false,
+      "static_before_MB": 1484.2724609375,
+      "inputs_MB": 1.57275390625,
+      "activations_MB": 9064.724609375,
+      "peak_allocated_MB": 10550.56982421875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 21.052471160888672
+    },
+    {
+      "it": 81,
+      "stepped": false,
+      "static_before_MB": 1484.27197265625,
+      "inputs_MB": 1.67041015625,
+      "activations_MB": 9060.34521484375,
+      "peak_allocated_MB": 10546.28759765625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.659454345703125
+    },
+    {
+      "it": 82,
+      "stepped": false,
+      "static_before_MB": 1484.36962890625,
+      "inputs_MB": 1.67724609375,
+      "activations_MB": 9061.63037109375,
+      "peak_allocated_MB": 10547.67724609375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.289587020874023
+    },
+    {
+      "it": 83,
+      "stepped": true,
+      "static_before_MB": 1484.37646484375,
+      "inputs_MB": 1.67529296875,
+      "activations_MB": 9063.5654296875,
+      "peak_allocated_MB": 10549.6171875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.91018295288086
+    },
+    {
+      "it": 84,
+      "stepped": false,
+      "static_before_MB": 1484.37451171875,
+      "inputs_MB": 1.6767578125,
+      "activations_MB": 9063.6171875,
+      "peak_allocated_MB": 10549.66845703125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.170177459716797
+    },
+    {
+      "it": 85,
+      "stepped": false,
+      "static_before_MB": 1484.3759765625,
+      "inputs_MB": 1.6767578125,
+      "activations_MB": 9066.14501953125,
+      "peak_allocated_MB": 10552.19775390625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.390506744384766
+    },
+    {
+      "it": 86,
+      "stepped": false,
+      "static_before_MB": 1485.2822265625,
+      "inputs_MB": 1.6767578125,
+      "activations_MB": 9067.81982421875,
+      "peak_allocated_MB": 10554.77880859375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.090818405151367
+    },
+    {
+      "it": 87,
+      "stepped": false,
+      "static_before_MB": 1484.3759765625,
+      "inputs_MB": 1.67626953125,
+      "activations_MB": 9063.5693359375,
+      "peak_allocated_MB": 10549.62158203125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.26854133605957
+    },
+    {
+      "it": 88,
+      "stepped": false,
+      "static_before_MB": 1484.66845703125,
+      "inputs_MB": 1.68896484375,
+      "activations_MB": 9060.66845703125,
+      "peak_allocated_MB": 10547.02587890625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.753164291381836
+    },
+    {
+      "it": 89,
+      "stepped": false,
+      "static_before_MB": 1485.29443359375,
+      "inputs_MB": 1.69580078125,
+      "activations_MB": 9065.18603515625,
+      "peak_allocated_MB": 10552.17626953125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.388429641723633
+    },
+    {
+      "it": 90,
+      "stepped": false,
+      "static_before_MB": 1484.39501953125,
+      "inputs_MB": 1.7001953125,
+      "activations_MB": 9056.14501953125,
+      "peak_allocated_MB": 10542.240234375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.9532413482666
+    },
+    {
+      "it": 91,
+      "stepped": false,
+      "static_before_MB": 1484.3994140625,
+      "inputs_MB": 1.708984375,
+      "activations_MB": 9064.99072265625,
+      "peak_allocated_MB": 10551.09912109375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.823211669921875
+    },
+    {
+      "it": 92,
+      "stepped": false,
+      "static_before_MB": 1484.408203125,
+      "inputs_MB": 1.70947265625,
+      "activations_MB": 9063.63330078125,
+      "peak_allocated_MB": 10549.7509765625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.685569763183594
+    },
+    {
+      "it": 93,
+      "stepped": false,
+      "static_before_MB": 1484.40869140625,
+      "inputs_MB": 1.6982421875,
+      "activations_MB": 9057.09912109375,
+      "peak_allocated_MB": 10543.2060546875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.018762588500977
+    },
+    {
+      "it": 94,
+      "stepped": false,
+      "static_before_MB": 1484.3974609375,
+      "inputs_MB": 1.681640625,
+      "activations_MB": 9056.3505859375,
+      "peak_allocated_MB": 10542.4296875,
+      "peak_reserved_MB": 14526.0,
+      "loss": 20.009899139404297
+    },
+    {
+      "it": 95,
+      "stepped": true,
+      "static_before_MB": 1484.380859375,
+      "inputs_MB": 1.6806640625,
+      "activations_MB": 9057.35888671875,
+      "peak_allocated_MB": 10543.42041015625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.210214614868164
+    },
+    {
+      "it": 96,
+      "stepped": false,
+      "static_before_MB": 1484.3798828125,
+      "inputs_MB": 1.65673828125,
+      "activations_MB": 9059.61865234375,
+      "peak_allocated_MB": 10545.6552734375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.786449432373047
+    },
+    {
+      "it": 97,
+      "stepped": false,
+      "static_before_MB": 1484.35595703125,
+      "inputs_MB": 1.68115234375,
+      "activations_MB": 9058.30126953125,
+      "peak_allocated_MB": 10544.33837890625,
+      "peak_reserved_MB": 14526.0,
+      "loss": 19.28390121459961
+    },
+    {
+      "it": 98,
+      "stepped": false,
+      "static_before_MB": 1484.38037109375,
+      "inputs_MB": 1.68701171875,
+      "activations_MB": 9062.87548828125,
+      "peak_allocated_MB": 10548.94287109375,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.957901000976562
+    },
+    {
+      "it": 99,
+      "stepped": false,
+      "static_before_MB": 1484.38623046875,
+      "inputs_MB": 1.66845703125,
+      "activations_MB": 9063.97314453125,
+      "peak_allocated_MB": 10550.02783203125,
+      "peak_reserved_MB": 14526.0,
+      "loss": 18.499263763427734
+    }
+  ]
+}
