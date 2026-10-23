@@ -1,0 +1,852 @@
+{
+  "dims": {
+    "det": {
+      "queries": 900,
+      "temporal_queries": 600,
+      "decoder_layers": 6,
+      "ops_per_type": {
+        "deformable": 6,
+        "ffn": 6,
+        "gnn": 5,
+        "norm": 11,
+        "refine": 6,
+        "temp_gnn": 5
+      },
+      "embed_dims": 256,
+      "ffn": {
+        "in_channels": 512,
+        "hidden": 1024,
+        "out": 256
+      },
+      "self_attn_embed": 512,
+      "temporal_attn_embed": 512,
+      "attn_heads": 8,
+      "decouple_attn": true,
+      "deformable": {
+        "groups": 8,
+        "levels": 4,
+        "cams": 6
+      }
+    },
+    "map": {
+      "queries": 100,
+      "temporal_queries": 33,
+      "decoder_layers": 6,
+      "ops_per_type": {
+        "deformable": 6,
+        "ffn": 6,
+        "gnn": 6,
+        "norm": 12,
+        "refine": 6,
+        "temp_gnn": 5
+      },
+      "embed_dims": 256,
+      "ffn": {
+        "in_channels": 512,
+        "hidden": 1024,
+        "out": 256
+      },
+      "self_attn_embed": 256,
+      "temporal_attn_embed": 256,
+      "attn_heads": 8,
+      "decouple_attn": false,
+      "deformable": {
+        "groups": 8,
+        "levels": 4,
+        "cams": 6
+      },
+      "points_per_query": 20
+    }
+  },
+  "prunability": {
+    "ffn": [
+      "\uac00\ub2a5",
+      "Linear(in\u2192hidden)+ReLU+Linear(hidden\u2192256) \ud45c\uc900 MLP. \uc740\ub2c9 \ucc28\uc6d0(1024)\ub9cc \uc790\ub974\uba74 \uc794\ucc28 \uc2a4\ud2b8\ub9bc(256)\uc5d0 \uc601\ud5a5 \uc5c6\uc74c. \ucee4\uc2a4\ud140 CUDA \uc5c6\uc74c"
+    ],
+    "refine": [
+      "\ub0b4\ubd80 \ucc28\uc6d0\ub9cc \uac00\ub2a5",
+      "linear_relu_ln(256) \ube14\ub85d\ub4e4. \uc785\ub825(\uc794\ucc28 256)\u00b7\ucd9c\ub825(box 11 / cls / quality)\uc740 \uace0\uc815, \ube14\ub85d \uc0ac\uc774 \ub0b4\ubd80 \ucc28\uc6d0\uc740 \uac00\ub2a5. \ucee4\uc2a4\ud140 CUDA \uc5c6\uc74c"
+    ],
+    "anchor_enc": [
+      "\ub0b4\ubd80 \ucc28\uc6d0\ub9cc \uac00\ub2a5",
+      "pos/size/yaw/vel \uac01 linear_relu_ln. \ub9c8\uc9c0\ub9c9 \ucd9c\ub825\uc740 cat\ub418\uc5b4 query_pos(256)\uac00 \ub418\ubbc0\ub85c \uace0\uc815, \ub0b4\ubd80 \ucc28\uc6d0\uc740 \uac00\ub2a5. \ucee4\uc2a4\ud140 CUDA \uc5c6\uc74c"
+    ],
+    "self_attn": [
+      "\uc5b4\ub824\uc6c0",
+      "FlashMHA\uac00 nn.Linear\uac00 \uc544\ub2cc \uc6d0\uc2dc in_proj_weight(3E\u00d7E)\ub97c chunk\ud574\uc11c \uc4f0\uace0, flash-attn CUDA \ucee4\ub110(head_dim \uc81c\uc57d) \ud638\ucd9c. Torch-Pruning \uae30\ubcf8 \ucd94\uc801 \ubd88\uac00 \u2192 \uc0ac\uc6a9\uc790 \uc815\uc758 pruner \ud544\uc694. fc_before/fc_after(decouple)\ub294 \uc77c\ubc18 Linear"
+    ],
+    "temporal_attn": [
+      "\uc5b4\ub824\uc6c0",
+      "self_attn\uacfc \uac19\uc740 \ubaa8\ub4c8(FlashMHA + flash-attn \ucee4\ub110)"
+    ],
+    "deformable": [
+      "\ubd88\uac00\uc5d0 \uac00\uae4c\uc6c0",
+      "\ucee4\uc2a4\ud140 CUDA deformable_aggregation\uc774 FPN \ud2b9\uc9d5\ub9f5 \ucc44\ub110(256)\u00b7\uadf8\ub8f9(8)\uacfc \ubb36\uc5ec \uc788\uc74c. weights_fc/output_proj/camera_encoder\ub294 Linear\uc9c0\ub9cc \ucc44\ub110\uc744 \uc790\ub974\uba74 \ucee4\ub110 \uc785\ub825 \ud615\ud0dc\uac00 \ubc14\ub01c"
+    ],
+    "norm": [
+      "\uc794\ucc28 \uc2a4\ud2b8\ub9bc\uc5d0 \ubb36\uc784",
+      "LayerNorm(256 / FFN \uc785\ub825 512). \uc794\ucc28 \uc2a4\ud2b8\ub9bc \ud3ed\uc744 \ubc14\uafb8\uc9c0 \uc54a\ub294 \ud55c \uace0\uc815"
+    ],
+    "residual_stream": [
+      "\ubd88\uac00",
+      "embed 256\uc740 det/map/motion head, DAF, FPN \ucd9c\ub825, teacher KD \ud2b9\uc9d5\uc5d0 \uacf5\ud1b5 \u2192 \uc790\ub974\uba74 \uc804\ubd80 \uc5f0\uc1c4 \ubcc0\uacbd"
+    ]
+  },
+  "heads": {
+    "det": {
+      "total": {
+        "train_retained_MB": 2114.162890625,
+        "train_transient_MB": 2130.3583984375,
+        "infer_ms": 19.962177257537842
+      },
+      "categories": {
+        "self_attn": {
+          "train_retained_MB": 244.31038411458331,
+          "infer_ms": 1.7093683302402494,
+          "train_share": 0.11555892178315504,
+          "infer_share": 0.08563035525570144
+        },
+        "temporal_attn": {
+          "train_retained_MB": 242.54703776041669,
+          "infer_ms": 1.6482044759392738,
+          "train_share": 0.11472485816299315,
+          "infer_share": 0.0825663681208372
+        },
+        "deformable": {
+          "train_retained_MB": 775.2540934244792,
+          "infer_ms": 9.541199028491974,
+          "train_share": 0.36669553555322054,
+          "infer_share": 0.4779638465984044
+        },
+        "ffn": {
+          "train_retained_MB": 260.52508951822915,
+          "infer_ms": 1.1425305664539336,
+          "train_share": 0.12322848474613579,
+          "infer_share": 0.05723476711552128
+        },
+        "refine": {
+          "train_retained_MB": 325.95467122395837,
+          "infer_ms": 2.1436639857292175,
+          "train_share": 0.15417670637838032,
+          "infer_share": 0.10738628146986104
+        },
+        "anchor_enc": {
+          "train_retained_MB": 242.63482259114582,
+          "infer_ms": 2.8134931156039236,
+          "train_share": 0.11476638042748771,
+          "infer_share": 0.14094119490605822
+        },
+        "norm": {
+          "train_retained_MB": 40.09957682291667,
+          "infer_ms": 0.09897056221030652,
+          "train_share": 0.01896711790786481,
+          "infer_share": 0.004957904187176508
+        },
+        "ffn.hidden": {
+          "train_retained_MB": 190.96364746093752,
+          "infer_ms": 0.4789615871757269,
+          "train_share": 0.09032589130560506,
+          "infer_share": 0.023993454270869578
+        },
+        "ffn.out_proj": {
+          "train_retained_MB": 21.937687174479166,
+          "infer_ms": 0.34989216595888134,
+          "train_share": 0.01037653591961111,
+          "infer_share": 0.01752775568740929
+        },
+        "other": {
+          "train_retained_MB": -17.16278483072938,
+          "infer_ms": 0.8647471928689647,
+          "train_share": -0.008118004959237379,
+          "infer_share": 0.04331928234643998
+        }
+      },
+      "per_layer": {
+        "pre": {
+          "anchor_enc": {
+            "train_retained_MB": 50.90830891927083,
+            "train_transient_MB": 37.6259765625,
+            "infer_ms": 0.7578166371583939
+          }
+        },
+        "L0": {
+          "deformable": {
+            "train_retained_MB": 129.189306640625,
+            "train_transient_MB": 153.99462890625,
+            "infer_ms": 1.610884152650833
+          },
+          "ffn": {
+            "train_retained_MB": 43.3597900390625,
+            "train_transient_MB": 52.36083984375,
+            "infer_ms": 0.18930848076939583
+          },
+          "refine": {
+            "train_retained_MB": 53.44862467447917,
+            "train_transient_MB": 55.4658203125,
+            "infer_ms": 0.35969151824712753
+          },
+          "anchor_enc": {
+            "train_retained_MB": 31.420646158854165,
+            "train_transient_MB": 40.4404296875,
+            "infer_ms": 0.3526380804181099
+          },
+          "norm": {
+            "train_retained_MB": 3.615185546875,
+            "train_transient_MB": 4.4501953125,
+            "infer_ms": 0.008740800153464078
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 31.794278971354167,
+            "train_transient_MB": 32.80078125,
+            "infer_ms": 0.07853983752429486
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 3.6043701171875,
+            "train_transient_MB": 5.421875,
+            "infer_ms": 0.058360961005091666
+          }
+        },
+        "L1": {
+          "self_attn": {
+            "train_retained_MB": 48.0689453125,
+            "train_transient_MB": 79.361328125,
+            "infer_ms": 0.34152288258075714
+          },
+          "temporal_attn": {
+            "train_retained_MB": 48.48597005208333,
+            "train_transient_MB": 72.302734375,
+            "infer_ms": 0.3653609597682953
+          },
+          "deformable": {
+            "train_retained_MB": 128.53024088541667,
+            "train_transient_MB": 154.00439453125,
+            "infer_ms": 1.578860479593277
+          },
+          "ffn": {
+            "train_retained_MB": 43.1075439453125,
+            "train_transient_MB": 50.89501953125,
+            "infer_ms": 0.1888944000005722
+          },
+          "refine": {
+            "train_retained_MB": 53.3880859375,
+            "train_transient_MB": 55.25927734375,
+            "infer_ms": 0.35617887884378435
+          },
+          "anchor_enc": {
+            "train_retained_MB": 33.006640625,
+            "train_transient_MB": 40.70458984375,
+            "infer_ms": 0.3414262396097183
+          },
+          "norm": {
+            "train_retained_MB": 7.087890625,
+            "train_transient_MB": 3.5439453125,
+            "infer_ms": 0.018112640343606472
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 31.6534423828125,
+            "train_transient_MB": 32.40966796875,
+            "infer_ms": 0.07831583760678767
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 3.515625,
+            "train_transient_MB": 4.515625,
+            "infer_ms": 0.05844128102064133
+          }
+        },
+        "L2": {
+          "self_attn": {
+            "train_retained_MB": 48.195743815104166,
+            "train_transient_MB": 79.23876953125,
+            "infer_ms": 0.34216160178184507
+          },
+          "temporal_attn": {
+            "train_retained_MB": 48.170247395833336,
+            "train_transient_MB": 72.087890625,
+            "infer_ms": 0.3218508806824684
+          },
+          "deformable": {
+            "train_retained_MB": 129.1829345703125,
+            "train_transient_MB": 154.07177734375,
+            "infer_ms": 1.5882700777053833
+          },
+          "ffn": {
+            "train_retained_MB": 43.4920654296875,
+            "train_transient_MB": 51.77880859375,
+            "infer_ms": 0.18909632101655005
+          },
+          "refine": {
+            "train_retained_MB": 53.3880859375,
+            "train_transient_MB": 55.25927734375,
+            "infer_ms": 0.3572355169057846
+          },
+          "anchor_enc": {
+            "train_retained_MB": 33.2332763671875,
+            "train_transient_MB": 40.70458984375,
+            "infer_ms": 0.34112351953983305
+          },
+          "norm": {
+            "train_retained_MB": 7.52978515625,
+            "train_transient_MB": 4.427734375,
+            "infer_ms": 0.01795168038457632
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 32.0379638671875,
+            "train_transient_MB": 32.40966796875,
+            "infer_ms": 0.07841503754258156
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 3.95751953125,
+            "train_transient_MB": 5.3994140625,
+            "infer_ms": 0.058251840956509114
+          }
+        },
+        "L3": {
+          "self_attn": {
+            "train_retained_MB": 48.193359375,
+            "train_transient_MB": 80.267578125,
+            "infer_ms": 0.34153824150562284
+          },
+          "temporal_attn": {
+            "train_retained_MB": 48.206583658854164,
+            "train_transient_MB": 72.087890625,
+            "infer_ms": 0.3204364788532257
+          },
+          "deformable": {
+            "train_retained_MB": 129.41846516927083,
+            "train_transient_MB": 154.07177734375,
+            "infer_ms": 1.587751041650772
+          },
+          "ffn": {
+            "train_retained_MB": 43.14828287760417,
+            "train_transient_MB": 51.77880859375,
+            "infer_ms": 0.18941696137189865
+          },
+          "refine": {
+            "train_retained_MB": 54.173502604166664,
+            "train_transient_MB": 58.04052734375,
+            "infer_ms": 0.35642303615808485
+          },
+          "anchor_enc": {
+            "train_retained_MB": 33.154150390625,
+            "train_transient_MB": 41.17138671875,
+            "infer_ms": 0.3408847999572754
+          },
+          "norm": {
+            "train_retained_MB": 7.177392578125,
+            "train_transient_MB": 4.4501953125,
+            "infer_ms": 0.018044800441712142
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 31.694181315104167,
+            "train_transient_MB": 32.40966796875,
+            "infer_ms": 0.07870559766888618
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 3.559814453125,
+            "train_transient_MB": 5.3994140625,
+            "infer_ms": 0.058193280920386316
+          }
+        },
+        "L4": {
+          "self_attn": {
+            "train_retained_MB": 49.8712158203125,
+            "train_transient_MB": 81.173828125,
+            "infer_ms": 0.3420806419849396
+          },
+          "temporal_attn": {
+            "train_retained_MB": 48.9398681640625,
+            "train_transient_MB": 72.087890625,
+            "infer_ms": 0.3205715182423592
+          },
+          "deformable": {
+            "train_retained_MB": 129.629541015625,
+            "train_transient_MB": 154.5703125,
+            "infer_ms": 1.5888332748413085
+          },
+          "ffn": {
+            "train_retained_MB": 43.628369140625,
+            "train_transient_MB": 52.70751953125,
+            "infer_ms": 0.19690048277378083
+          },
+          "refine": {
+            "train_retained_MB": 55.628076171875,
+            "train_transient_MB": 57.9033203125,
+            "infer_ms": 0.3573683178424835
+          },
+          "anchor_enc": {
+            "train_retained_MB": 31.158634440104166,
+            "train_transient_MB": 41.27587890625,
+            "infer_ms": 0.33998687952756884
+          },
+          "norm": {
+            "train_retained_MB": 7.389973958333333,
+            "train_transient_MB": 4.4501953125,
+            "infer_ms": 0.018060480430722236
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 31.892342122395835,
+            "train_transient_MB": 32.68408203125,
+            "infer_ms": 0.08654943950474263
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 3.610823567708333,
+            "train_transient_MB": 5.421875,
+            "infer_ms": 0.05832096107304096
+          }
+        },
+        "L5": {
+          "self_attn": {
+            "train_retained_MB": 49.981119791666664,
+            "train_transient_MB": 81.173828125,
+            "infer_ms": 0.34206496238708495
+          },
+          "temporal_attn": {
+            "train_retained_MB": 48.74436848958333,
+            "train_transient_MB": 72.087890625,
+            "infer_ms": 0.31998463839292524
+          },
+          "deformable": {
+            "train_retained_MB": 129.30360514322916,
+            "train_transient_MB": 154.30810546875,
+            "infer_ms": 1.5866000020503999
+          },
+          "ffn": {
+            "train_retained_MB": 43.7890380859375,
+            "train_transient_MB": 52.70751953125,
+            "infer_ms": 0.18891392052173614
+          },
+          "refine": {
+            "train_retained_MB": 55.9282958984375,
+            "train_transient_MB": 57.9033203125,
+            "infer_ms": 0.3567667177319527
+          },
+          "anchor_enc": {
+            "train_retained_MB": 29.753165690104165,
+            "train_transient_MB": 41.27587890625,
+            "infer_ms": 0.33961695939302444
+          },
+          "norm": {
+            "train_retained_MB": 7.299348958333334,
+            "train_transient_MB": 4.4501953125,
+            "infer_ms": 0.018060160456225275
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 31.891438802083332,
+            "train_transient_MB": 32.546875,
+            "infer_ms": 0.078435837328434
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 3.6895345052083335,
+            "train_transient_MB": 5.421875,
+            "infer_ms": 0.05832384098321199
+          }
+        }
+      }
+    },
+    "map": {
+      "total": {
+        "train_retained_MB": 1559.2961669921874,
+        "train_transient_MB": 1638.720703125,
+        "infer_ms": 23.927537002563476
+      },
+      "categories": {
+        "self_attn": {
+          "train_retained_MB": 14.73046875,
+          "infer_ms": 0.7403814435750246,
+          "train_share": 0.0094468703648611,
+          "infer_share": 0.03094265170275168
+        },
+        "temporal_attn": {
+          "train_retained_MB": 9.701822916666668,
+          "infer_ms": 0.5150671980530024,
+          "train_share": 0.006221924431059849,
+          "infer_share": 0.02152612690549055
+        },
+        "deformable": {
+          "train_retained_MB": 1462.8034505208332,
+          "infer_ms": 20.56663169145584,
+          "train_share": 0.9381177748564057,
+          "infer_share": 0.8595381835268893
+        },
+        "ffn": {
+          "train_retained_MB": 30.993229166666666,
+          "infer_ms": 0.5589289703965188,
+          "train_share": 0.01987642233896542,
+          "infer_share": 0.023359235442270466
+        },
+        "refine": {
+          "train_retained_MB": 26.63671875,
+          "infer_ms": 0.6719846442341805,
+          "train_share": 0.017082526920707462,
+          "infer_share": 0.028084154426850846
+        },
+        "anchor_enc": {
+          "train_retained_MB": 11.503059895833333,
+          "infer_ms": 0.31365888303145767,
+          "train_share": 0.007377084699709242,
+          "infer_share": 0.01310869911089695
+        },
+        "norm": {
+          "train_retained_MB": 4.734375,
+          "infer_ms": 0.09239456176757813,
+          "train_share": 0.003036225638348357,
+          "infer_share": 0.0038614321966226376
+        },
+        "ffn.hidden": {
+          "train_retained_MB": 23.352604166666666,
+          "infer_ms": 0.1397798419184983,
+          "train_share": 0.014976375021630942,
+          "infer_share": 0.005841798171852079
+        },
+        "ffn.out_proj": {
+          "train_retained_MB": 2.34375,
+          "infer_ms": 0.27322208318859337,
+          "train_share": 0.0015030819991823548,
+          "infer_share": 0.011418729941126901
+        },
+        "other": {
+          "train_retained_MB": -1.8069580078124545,
+          "infer_ms": 0.46848961004987544,
+          "train_share": -0.001158829250057092,
+          "infer_share": 0.01957951668822762
+        }
+      },
+      "per_layer": {
+        "pre": {
+          "anchor_enc": {
+            "train_retained_MB": 2.081184895833333,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.1136371212080121
+          }
+        },
+        "L0": {
+          "self_attn": {
+            "train_retained_MB": 2.455078125,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.25771776169538496
+          },
+          "deformable": {
+            "train_retained_MB": 243.57408854166667,
+            "train_transient_MB": 333.22119140625,
+            "infer_ms": 3.450812830924988
+          },
+          "ffn": {
+            "train_retained_MB": 5.105167643229167,
+            "train_transient_MB": 6.5,
+            "infer_ms": 0.09296000167727471
+          },
+          "refine": {
+            "train_retained_MB": 4.439453125,
+            "train_transient_MB": 5.439453125,
+            "infer_ms": 0.11212672077119351
+          },
+          "anchor_enc": {
+            "train_retained_MB": 1.5703125,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.052331519313156605
+          },
+          "norm": {
+            "train_retained_MB": 0.7890625,
+            "train_transient_MB": 0.39453125,
+            "infer_ms": 0.020364800207316874
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 3.8317301432291666,
+            "train_transient_MB": 3.8359375,
+            "infer_ms": 0.023291200306266545
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 0.390625,
+            "train_transient_MB": 1.390625,
+            "infer_ms": 0.045440640524029734
+          }
+        },
+        "L1": {
+          "self_attn": {
+            "train_retained_MB": 2.455078125,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.21562464088201522
+          },
+          "temporal_attn": {
+            "train_retained_MB": 1.9403645833333334,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.24971743762493134
+          },
+          "deformable": {
+            "train_retained_MB": 243.8714111328125,
+            "train_transient_MB": 333.33837890625,
+            "infer_ms": 3.4538815808296204
+          },
+          "ffn": {
+            "train_retained_MB": 5.104036458333334,
+            "train_transient_MB": 6.5,
+            "infer_ms": 0.09324896179139613
+          },
+          "refine": {
+            "train_retained_MB": 4.439453125,
+            "train_transient_MB": 5.439453125,
+            "infer_ms": 0.11210752069950104
+          },
+          "anchor_enc": {
+            "train_retained_MB": 1.5703125,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.029511680509895086
+          },
+          "norm": {
+            "train_retained_MB": 0.7890625,
+            "train_transient_MB": 0.39453125,
+            "infer_ms": 0.021150400144979358
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 3.8305989583333333,
+            "train_transient_MB": 3.8359375,
+            "infer_ms": 0.02327840032055974
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 0.390625,
+            "train_transient_MB": 1.390625,
+            "infer_ms": 0.04552576057612896
+          }
+        },
+        "L2": {
+          "self_attn": {
+            "train_retained_MB": 2.455078125,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.06669344022870063
+          },
+          "temporal_attn": {
+            "train_retained_MB": 1.9403645833333334,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.06630400009453297
+          },
+          "deformable": {
+            "train_retained_MB": 243.91815592447918,
+            "train_transient_MB": 333.095703125,
+            "infer_ms": 3.416528639793396
+          },
+          "ffn": {
+            "train_retained_MB": 5.101839192708334,
+            "train_transient_MB": 6.650390625,
+            "infer_ms": 0.09318464174866677
+          },
+          "refine": {
+            "train_retained_MB": 4.439453125,
+            "train_transient_MB": 5.439453125,
+            "infer_ms": 0.11202688068151474
+          },
+          "anchor_enc": {
+            "train_retained_MB": 1.5703125,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.029545600544661283
+          },
+          "norm": {
+            "train_retained_MB": 0.7890625,
+            "train_transient_MB": 0.39453125,
+            "infer_ms": 0.012871680343523621
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 3.8284016927083333,
+            "train_transient_MB": 3.986328125,
+            "infer_ms": 0.023367040306329728
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 0.390625,
+            "train_transient_MB": 1.390625,
+            "infer_ms": 0.04557504054158926
+          }
+        },
+        "L3": {
+          "self_attn": {
+            "train_retained_MB": 2.455078125,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.06682624027132988
+          },
+          "temporal_attn": {
+            "train_retained_MB": 1.9403645833333334,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.06624288007616996
+          },
+          "deformable": {
+            "train_retained_MB": 243.83353678385416,
+            "train_transient_MB": 333.7255859375,
+            "infer_ms": 3.4157734394073485
+          },
+          "ffn": {
+            "train_retained_MB": 5.165266927083334,
+            "train_transient_MB": 7.1328125,
+            "infer_ms": 0.09317408174276352
+          },
+          "refine": {
+            "train_retained_MB": 4.439453125,
+            "train_transient_MB": 5.439453125,
+            "infer_ms": 0.11203648068010807
+          },
+          "anchor_enc": {
+            "train_retained_MB": 1.5703125,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.0295398405008018
+          },
+          "norm": {
+            "train_retained_MB": 0.7890625,
+            "train_transient_MB": 0.39453125,
+            "infer_ms": 0.012658560359850525
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 3.891829427083333,
+            "train_transient_MB": 4.46875,
+            "infer_ms": 0.023281280342489483
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 0.390625,
+            "train_transient_MB": 1.390625,
+            "infer_ms": 0.04542176049202681
+          }
+        },
+        "L4": {
+          "self_attn": {
+            "train_retained_MB": 2.455078125,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.06667264021933078
+          },
+          "temporal_attn": {
+            "train_retained_MB": 1.9403645833333334,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.0663449601083994
+          },
+          "deformable": {
+            "train_retained_MB": 243.808642578125,
+            "train_transient_MB": 333.0751953125,
+            "infer_ms": 3.4149344038963316
+          },
+          "ffn": {
+            "train_retained_MB": 5.219791666666667,
+            "train_transient_MB": 7.38916015625,
+            "infer_ms": 0.09309440173208713
+          },
+          "refine": {
+            "train_retained_MB": 4.439453125,
+            "train_transient_MB": 5.439453125,
+            "infer_ms": 0.11181184075772763
+          },
+          "anchor_enc": {
+            "train_retained_MB": 1.5703125,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.029542720485478638
+          },
+          "norm": {
+            "train_retained_MB": 0.7890625,
+            "train_transient_MB": 0.39453125,
+            "infer_ms": 0.012683520363643765
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 3.9463541666666666,
+            "train_transient_MB": 4.72509765625,
+            "infer_ms": 0.023313920311629772
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 0.390625,
+            "train_transient_MB": 1.390625,
+            "infer_ms": 0.04554208055138588
+          }
+        },
+        "L5": {
+          "self_attn": {
+            "train_retained_MB": 2.455078125,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.06684672027826309
+          },
+          "temporal_attn": {
+            "train_retained_MB": 1.9403645833333334,
+            "train_transient_MB": 5.310546875,
+            "infer_ms": 0.0664579201489687
+          },
+          "deformable": {
+            "train_retained_MB": 243.79761555989583,
+            "train_transient_MB": 333.71484375,
+            "infer_ms": 3.4147007966041567
+          },
+          "ffn": {
+            "train_retained_MB": 5.297127278645833,
+            "train_transient_MB": 7.525390625,
+            "infer_ms": 0.09326688170433045
+          },
+          "refine": {
+            "train_retained_MB": 4.439453125,
+            "train_transient_MB": 5.439453125,
+            "infer_ms": 0.11187520064413548
+          },
+          "anchor_enc": {
+            "train_retained_MB": 1.5703125,
+            "train_transient_MB": 2.17578125,
+            "infer_ms": 0.02955040046945214
+          },
+          "norm": {
+            "train_retained_MB": 0.7890625,
+            "train_transient_MB": 0.39453125,
+            "infer_ms": 0.01266560034826398
+          },
+          "ffn.hidden": {
+            "train_retained_MB": 4.023689778645833,
+            "train_transient_MB": 4.861328125,
+            "infer_ms": 0.023248000331223012
+          },
+          "ffn.out_proj": {
+            "train_retained_MB": 0.390625,
+            "train_transient_MB": 1.390625,
+            "infer_ms": 0.04571680050343275
+          }
+        }
+      }
+    }
+  },
+  "ffn_pruning": {
+    "20%": {
+      "det": {
+        "train_mem_saved_MB": 38.1927294921875,
+        "head_mem_share": 0.01806517826112101,
+        "infer_ms_saved_upper": 0.16577075062692168,
+        "head_time_share_upper": 0.008304241991655775
+      },
+      "map": {
+        "train_mem_saved_MB": 4.670520833333334,
+        "head_mem_share": 0.0029952750043261886,
+        "infer_ms_saved_upper": 0.08260038502141834,
+        "head_time_share_upper": 0.003452105622595796
+      },
+      "both": {
+        "train_mem_saved_MB": 42.86325032552084,
+        "of_total_activations": 0.0061897327757011985,
+        "of_peak_allocated": 0.0050840646778158565,
+        "infer_ms_saved_upper": 0.24837113564833999,
+        "of_frame_latency_upper": 0.003077468730060611
+      }
+    },
+    "40%": {
+      "det": {
+        "train_mem_saved_MB": 76.385458984375,
+        "head_mem_share": 0.03613035652224202,
+        "infer_ms_saved_upper": 0.33154150125384335,
+        "head_time_share_upper": 0.01660848398331155
+      },
+      "map": {
+        "train_mem_saved_MB": 9.341041666666667,
+        "head_mem_share": 0.005990550008652377,
+        "infer_ms_saved_upper": 0.16520077004283668,
+        "head_time_share_upper": 0.006904211245191592
+      },
+      "both": {
+        "train_mem_saved_MB": 85.72650065104168,
+        "of_total_activations": 0.012379465551402397,
+        "of_peak_allocated": 0.010168129355631713,
+        "infer_ms_saved_upper": 0.49674227129667997,
+        "of_frame_latency_upper": 0.006154937460121222
+      }
+    }
+  },
+  "reference": {
+    "train_activations_MB_mean": 6924.895125325521,
+    "train_peak_allocated_MB": 8430.90185546875,
+    "infer_latency_ms": 80.70630684960634,
+    "infer_mode": "repo"
+  }
+}
