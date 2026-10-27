@@ -1,10 +1,25 @@
+# data
 data/
-checkpoint/
-work_dirs/
+
+# python
+__pycache__/
+*.pyc
+
+# build artifacts
+build/
+*.egg-info/
+*.so
+
+# logs
+*.log
+
+# venv
+.venv/
+
+# vis outputs
 vis/
-**/__pycache__/
-**/*.pyc
-**/*.pyo
-**/*.so
-**/build/
-**/*.egg-info/
+work_dirs/
+
+# checkpoints
+checkpoint/
+*.pyo
