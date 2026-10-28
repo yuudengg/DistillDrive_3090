@@ -23,7 +23,7 @@
 - 플래그: `cuda.matmul.allow_tf32=False`, `cudnn.allow_tf32=True`, `cudnn.benchmark=False`, `cudnn.deterministic=False`
 - torch 1.13.0+cu116, RTX 3090
 
-## 생성 명령 (`tools/feasibility/run_queue_eval.sh`)
+## 생성 명령 (당시 `tools/feasibility/run_queue_eval.sh`, 2026-10-28 삭제 — 커밋 `81241a2`에 있음)
 
 ```bash
 cd /workspace/yujung/DistillDrive && source .venv/bin/activate && export PYTHONPATH=$(pwd)
@@ -51,4 +51,4 @@ import mmcv
 runs = {n: mmcv.load(f"tools/feasibility/outputs_A/{n}.pkl") for n in ["base_run1", "base_run2", "matmul"]}
 ```
 
-샘플 단위 비교 결과는 `outputs/queue_eval/compare_noise_floor.json`(base_run1 대 base_run2)과 `compare_orig_vs_matmul.json`(base_run1 대 matmul)에 있습니다. 둘 다 `compare_outputs.py`로 만들었습니다.
+샘플 단위 비교 결과는 `outputs/queue_eval/compare_noise_floor.json`(base_run1 대 base_run2)과 `compare_orig_vs_matmul.json`(base_run1 대 matmul)에 있습니다. 둘 다 `compare_outputs.py`(2026-10-28 삭제, 커밋 `81241a2`에 있음)로 만들었습니다.

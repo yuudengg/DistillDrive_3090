@@ -1,6 +1,6 @@
 """Exp A: full val evaluation of InstanceQueue.prepare_motion original vs matmul (repo mode).
 
-Saves the raw per-sample outputs (like tools/test.py --out) for compare_outputs.py,
+Saves the raw per-sample outputs (like tools/test.py --out) for offline comparison,
 and records the TF32 / cudnn flags and statistics of the tracking match matrix
 (dtype, distinct values, max matches per row/column) seen during the run.
 

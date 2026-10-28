@@ -462,32 +462,44 @@ match의 bool→float 변환에서 기울기가 흐르는지:
 
 ## 재현
 
+남은 측정 도구는 가지치기·양자화·회복 학습 전후 측정에 그대로 쓸 수 있습니다.
+
 ```bash
 cd /workspace/yujung/DistillDrive
 source .venv/bin/activate && export PYTHONPATH=$(pwd)
-PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128 python tools/feasibility/train_memory.py --iters 100   # 실험 1 (~5분)
-bash tools/feasibility/run_infer_all.sh   # 실험 2·3 + 진단 (~2시간, 전체 평가 3회 포함)
+export PYTORCH_CUDA_ALLOC_CONF=max_split_size_mb:128     # 실제 stage2 학습과 같은 할당기 설정
+
+# 학습 메모리·iter 시간 (배치 4, 60 iter 이상). --hooks: 모듈별, --hooks heads: head 층·연산별
+python tools/feasibility/train_memory.py --iters 60 [--config <cfg>] [--with-cp on|off] [--queue matmul] [--hooks [heads]] [--tag <이름>]
+# 추론 지연·메모리 (배치 1, 워밍업 10 + 100프레임), --eval이면 검증셋 전체 평가까지
+python tools/feasibility/infer_bench.py --mode repo [--config <cfg>] [--queue matmul] [--tag <이름>] [--eval]
+# 모듈별 추론 활성값
+python tools/feasibility/module_memory.py --mode repo
+# 검증셋 전체 평가 (repo 모드, 시드 고정, 출력 저장 선택)
+python tools/feasibility/queue_matmul_eval.py --variant matmul --run <이름> [--config <cfg>] [--no-save] [--eval-layer N]
+# head 층·연산별 추론 시간 측정과 요약 (train_memory.py --hooks heads 결과와 합침)
+python tools/feasibility/head_breakdown.py --infer --summarize
 ```
 
 | 파일 | 역할 |
 |---|---|
-| `common.py` | 설정 로드, 배포 모델 구성(teacher 제외), 정밀도 모드·fp32 fallback |
-| `train_memory.py` | 실험 1 → `outputs/exp1_train_memory_bs4.json` (iter별 기록 포함) |
+| `common.py` | 설정 로드, 배포 모델 구성(teacher 제외, 잘라낸 층 키 무시), 정밀도 모드·FP16 fp32 fallback, `prepare_motion` 원래/matmul 전환, 평가용 층 지정 |
+| `train_memory.py` | 실험 1·B·B-4·층 수 시험의 학습 메모리 → `outputs/exp1_*.json`, `outputs/expB_*.json` |
 | `module_memory.py` | 실험 2 → `outputs/exp2_module_memory_{mode}.json` |
-| `infer_bench.py` | 실험 3 → `outputs/exp3_infer_{mode}.json`, `outputs/exp3_infer_{mode}_eval.json`, `outputs/eval_{mode}/` (전체 지표, 평가 로그) |
-| `probe_motion_head.py` | motion_plan_head 800MB의 원인 연산 프로파일 → `outputs/probe_motion_head_fp32.txt` |
-| `probe_fp16_nan.py` | FP16 NaN 발생 위치·원인 → `outputs/probe_fp16_nan_{mode}.txt` |
-| `probe_queue_matmul.py` | 큐 연산 matmul 교체의 효과·동등성 → `outputs/probe_queue_matmul_{mode}.json` |
-| `run_infer_all.sh` | 실험 2·3과 진단을 순서대로 실행 |
-| `queue_matmul_eval.py` | 실험 A: 원래/matmul 변형으로 전체 검증셋 평가 + 출력 저장 → `outputs/queue_eval/<run>/` |
-| `probe_queue_grad.py` | 실험 A: 실제 학습 입력으로 두 식의 역전파 기울기 비교 → `outputs/probe_queue_grad.json` |
-| `compare_outputs.py` | 실험 A: 두 출력 pkl의 샘플 단위 비교 → `outputs/queue_eval/compare_*.json` |
-| `run_queue_eval.sh` | 실험 A 전체(원래, matmul, 원래 2회차, 비교) 순차 실행 (약 2시간) |
-| `train_memory.py --with-cp on/off [--hooks]` | 실험 B → `outputs/expB_train_bs4_cp{on,off}_{hooks,timing}.json` |
-| `run_train_B.sh` | 실험 B 4회 실행 (약 25분) |
-| `train_memory.py --queue matmul [--hooks heads]` | B-4 matmul 재측정, 실험 5 준비의 head 분해 학습 메모리 → `outputs/expB_train_bs4_cpon_{timing,hooks,heads}_matmul.json` |
-| `configs/stage2_distribution_{layers4,layers5,det4_map6,det6_map4}.py` | 층 수 시험 설정 (기존 config 상속, operation_order만 자름) |
-| `run_layers.sh`, `run_layers_combo.sh` | 층 수 시험: 학습 메모리·추론 지연·전체 평가 (각 약 1시간 50분 / 1시간 45분) |
-| `probe_layer_exit.py --layers N` | 층 수 시험 진단: 잘린 모델 vs 6층 모델의 해당 층 출력 비교 (N=6이면 잡음 하한) → `outputs/probe_layer_exit_L*.json` |
+| `infer_bench.py` | 실험 3·층 수 시험의 추론 지연 → `outputs/exp3_infer_*.json`, `outputs/eval_{mode}/` |
+| `queue_matmul_eval.py` | 실험 A·층 수 시험·진단의 검증셋 전체 평가 → `outputs/queue_eval/<run>/` |
+| `head_breakdown.py` | 실험 5 준비 → `outputs/exp5prep_*.json` |
 | `layer_losses.py` | 학습 로그의 층별 손실 표 → `outputs/stage2_layer_losses.json` |
-| `head_breakdown.py --infer / --summarize` | 실험 5 준비: head 층·연산별 추론 시간 측정, 학습 메모리와 합쳐 요약·FFN 가지치기 추정 → `outputs/exp5prep_*.json` |
+| `probe_layer_exit.py` | 층 수 시험 진단 → `outputs/probe_layer_exit_L*.json` |
+| `configs/stage2_distribution_{layers4,layers5,det4_map6,det6_map4}.py` | 층 수 시험 설정 (기존 config 상속, operation_order만 자름) |
+
+**정리한 스크립트 (2026-10-28 삭제)**: 결론이 나온 일회성 진단과 지난 실험을 다시 돌리는 일괄 실행 스크립트는 지웠습니다. 결과 파일(`outputs/`)과 이 문서의 근거는 그대로 남아 있습니다. 필요하면 커밋 `81241a2`에서 꺼낼 수 있습니다(`git show 81241a2:tools/feasibility/<파일>`).
+
+| 삭제한 파일 | 만든 결과 |
+|---|---|
+| `probe_motion_head.py` | `outputs/probe_motion_head_fp32.txt` (829MB 연산 프로파일) |
+| `probe_fp16_nan.py` | `outputs/probe_fp16_nan_{full_amp,full_amp_raw}.txt` (FP16 NaN 원인) |
+| `probe_queue_matmul.py` | `outputs/probe_queue_matmul_{fp32,full_amp}.json` (matmul 효과·연산 동등성) |
+| `probe_queue_grad.py` | `outputs/probe_queue_grad.json` (역전파 기울기 비교) |
+| `compare_outputs.py` | `outputs/queue_eval/compare_*.json` (샘플 단위 출력 비교) |
+| `run_infer_all.sh`, `run_queue_eval.sh`, `run_train_B.sh`, `run_layers.sh`, `run_layers_combo.sh` | 실험 2·3, A, B, 층 수 시험 일괄 실행 |
