@@ -564,6 +564,9 @@ def test_training_forward_and_loss():
         assert set(indices[b][0].tolist()) <= set(sq.keep_idx[b].tolist())
     losses = sq.loss(mo, po, metas, {"indices": indices})
     assert "distribution_loss" in losses and torch.isfinite(losses["distribution_loss"])
+    # diagnostics are logged but never summed into the total loss
+    assert int(losses["sq_k_eff"]) == k and int(losses["sq_n_pos_total"]) == sum(len(p) for p, _ in indices)
+    assert all("loss" not in name and not losses[name].requires_grad for name in losses if name.startswith("sq_"))
     total = sum(v for v in losses.values() if torch.is_tensor(v) and v.requires_grad)
     total.backward()
 

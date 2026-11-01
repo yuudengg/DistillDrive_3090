@@ -465,4 +465,10 @@ class SparseQueryMotionPlanningHead(MotionPlanningHead):
                 )
             else:
                 loss.update(gen(planning_model_outs["distribution"], motion_loss_cache, self.agent_indices))
+
+        # [SQ] diagnostics -> training log. No "loss" in the key, so mmdet's
+        # _parse_losses logs them without adding them to the total loss.
+        for key in ("k_eff", "n_pos_dropped", "n_pos_total", "n_future_truncated"):
+            if key in self.sq_stats:
+                loss[f"sq_{key}"] = torch.tensor(float(self.sq_stats[key]), device=self.keep_idx.device)
         return loss
