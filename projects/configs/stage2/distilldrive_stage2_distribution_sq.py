@@ -37,6 +37,9 @@ resume_from = _sq_latest if os.path.exists(_sq_latest) else None
 
 num_query = 64
 
+# Fine-tuning from stage2 weights: lower LR than the base 3e-4 (merged, other keys kept).
+optimizer = dict(lr=1e-4)
+
 model = dict(
     head=dict(
         motion_plan_head=dict(
