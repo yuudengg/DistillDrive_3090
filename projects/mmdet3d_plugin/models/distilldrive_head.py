@@ -57,6 +57,7 @@ class DistillDriveHead(BaseModule):
     ):
         run_teacher = self.task_config['with_distillation'] and (
             self.training or not self.task_config['with_motion_plan']
+            or self.task_role == 'Teacher'
         )
         if run_teacher:
             motion_tc, planning_tc = self.distillation_head(metas)
