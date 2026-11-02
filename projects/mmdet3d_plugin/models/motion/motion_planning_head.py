@@ -30,6 +30,7 @@ from ..attention import gen_sineembed_for_position
 from ..blocks import linear_relu_ln
 from ..instance_bank import topk
 from ..language import build_language_module
+from ..language.packet import split_packet
 from .safety_check import check_rollback_cfg
 
 
@@ -77,6 +78,9 @@ class MotionPlanningHead(BaseModule):
         language_module=None,
         num_det=50,
         num_map=10,
+        lang_packet_cfg=None,
+        lang_packet_refine_idx=-1,
+        lang_packet_dump=False,
     ):
 
         super(MotionPlanningHead, self).__init__()
@@ -138,6 +142,14 @@ class MotionPlanningHead(BaseModule):
             assert (self.adaln is not None and self.language_model is not None), (
                 "language_module.enabled=True 인데 adaln/language_model 설정이 없습니다"
             )
+        # C: 언어모듈 입력(scene_input)을 만드는 패킷 빌더. 되먹임을 켜면 필수, 트리거가 걸린 때만 계산.
+        # lang_packet_dump: forward 끝 패킷을 planning_output에 저장 (덤프용, attach_packet_dumper가 켬)
+        # lang_packet_refine_idx: 그 덤프 패킷에 쓸 refine 출력 (-1 = 마지막)
+        self.lang_packet_builder = build(lang_packet_cfg, PLUGIN_LAYERS)
+        self.lang_packet_refine_idx = lang_packet_refine_idx
+        self.lang_packet_dump = lang_packet_dump
+        if self.use_feedback:
+            assert self.lang_packet_builder is not None, "language feedback needs lang_packet_cfg (scene_input comes from the packet)"
 
         if self.decouple_attn:
             self.fc_before = nn.Linear(
@@ -509,7 +521,11 @@ class MotionPlanningHead(BaseModule):
                 if self.use_feedback:
                     use = self._trigger(plan_cls)  # [B] 불확실한 샘플
                     if use.any():
-                        meta_idx, use = self._query_language(instance_feature, metas, use)
+                        packet = self._lang_packet(
+                            instance_feature, num_anchor, det_confidence, det_anchors, det_classification,
+                            map_instance_feature_selected, plan_query, plan_reg, plan_cls, metas,
+                        )
+                        meta_idx, use = self._query_language(packet, use)
                     if use.any():
                         cond = self.adaln(meta_idx)  # [B] -> (g, b, a) 각 [B, 1, D]
                         if self.counterfactual_check:
@@ -547,6 +563,22 @@ class MotionPlanningHead(BaseModule):
                 planning_status.append(plan_status)
                 planning_feature.append(plan_query)
 
+        # =========== language packet for dumps (eval only, detached, does not change any driving output) ===========
+        lang_packet = None
+        if self.lang_packet_dump and self.lang_packet_builder is not None and not self.training:
+            ref = self.lang_packet_refine_idx
+            lang_packet = self.lang_packet_builder(
+                agent_feat=instance_feature[:, :num_anchor],
+                agent_conf=det_confidence,
+                agent_boxes=det_anchors,
+                agent_labels=det_classification.argmax(dim=-1),
+                ego_feat_modes=planning_feature[ref][:, 0],  # plan_query [B, 1, 3 * ME, D] -> [B, 3 * ME, D]
+                plan_reg=planning_prediction[ref],
+                plan_cls=planning_classification[ref],
+                cmd=metas.get("gt_ego_fut_cmd") if isinstance(metas, dict) else None,
+                map_feat=map_instance_feature_selected,
+            )
+
         self.instance_queue.cache_motion(instance_feature[:, :num_anchor], det_output, metas)
         self.instance_queue.cache_planning(instance_feature[:, num_anchor:], plan_status)
 
@@ -566,6 +598,8 @@ class MotionPlanningHead(BaseModule):
             "period": self.instance_queue.ego_period,
             "anchor_queue": self.instance_queue.ego_anchor_queue,
         }
+        if lang_packet is not None:
+            planning_output["lang_packet"] = lang_packet
         # Add distribution to calculate the gradient
         if self.vae_model is True:
             planning_output["distribution"] = output_distribution
@@ -582,12 +616,12 @@ class MotionPlanningHead(BaseModule):
             conf = plan_cls.sigmoid().flatten(1)
             return conf.max(dim=1).values < self.trigger_threshold
 
-    def _query_language(self, instance_feature, metas, use):
+    def _query_language(self, packet, use):
         """트리거된 샘플만 언어 모델에 묻는다 (infer_batch).
         Returns: meta_idx [B] long (미사용 샘플은 0), use [B] bool (언어 실패(None) 샘플은 False)"""
         idx = use.nonzero().flatten().tolist()
         results = self.language_model.infer_batch(
-            [self._scene_input(instance_feature, metas, b) for b in idx]
+            [self._scene_input(packet, b) for b in idx]
         )
         meta_idx = torch.zeros(use.shape[0], dtype=torch.long, device=use.device)
         use = use.clone()
@@ -605,21 +639,25 @@ class MotionPlanningHead(BaseModule):
             return old
         return torch.where(use.reshape([-1] + [1] * (old.dim() - 1)), new, old)
 
-    def _scene_input(self, instance_feature, metas, b):
-        """언어모듈 입력 (샘플 b 하나). 팀 합의: 1차는 '텍스트 요약' 형식.
-        TODO(C): scene_input 최종 형식(텍스트 요약) 확정 후 여기 맞추기."""
-        bs = instance_feature.shape[0]
+    def _lang_packet(self, instance_feature, num_anchor, det_confidence, det_anchors, det_classification,
+                     map_feat, plan_query, plan_reg, plan_cls, metas):
+        """C: 1차 refine 결과로 언어 패킷 (배치 전체, detach). 트리거가 걸린 때만 호출된다."""
+        return self.lang_packet_builder(
+            agent_feat=instance_feature[:, :num_anchor],
+            agent_conf=det_confidence,
+            agent_boxes=det_anchors,
+            agent_labels=det_classification.argmax(dim=-1),
+            ego_feat_modes=plan_query[:, 0],  # [B, 1, 3 * ME, D] -> [B, 3 * ME, D]
+            plan_reg=plan_reg,
+            plan_cls=plan_cls,
+            cmd=metas.get("gt_ego_fut_cmd") if isinstance(metas, dict) else None,
+            map_feat=map_feat,
+        )
 
-        def pick(v):
-            if torch.is_tensor(v) and v.dim() > 0 and v.shape[0] == bs:
-                return v[b]
-            if isinstance(v, (list, tuple)) and len(v) == bs:
-                return v[b]
-            return v
-
-        if isinstance(metas, dict):
-            metas = {k: pick(v) for k, v in metas.items()}
-        return {"instance_feature": instance_feature[b], "metas": metas}
+    @staticmethod
+    def _scene_input(packet, b):
+        """언어모듈 입력 (샘플 b 하나) = 패킷의 b번째. 텍스트/임베딩 경로 모두 같은 dict이고 변환은 C 안에서 한다."""
+        return split_packet(packet, b)
 
     def _refine_once(
         self,
