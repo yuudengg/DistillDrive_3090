@@ -62,6 +62,26 @@ ego_fut_ts = 6
 ego_fut_mode = 6
 queue_length = 4 # history + current
 
+# language feedback (A integration). enabled=False -> output identical to the original model.
+language_module = dict(
+    enabled=False,
+    trigger_threshold=0.5,  # max plan_cls confidence below this -> uncertain -> ask the language model
+    adaln=dict(type="AdaLNZero", embed_dims=256, num_meta=12),
+    # C fills ckpt_dir / lm_path after training (CPU test: dict(type="mock", mode="cycle", fail_every=4))
+    language_model=dict(type="LanguageModule", ckpt_dir=None, lm_path=None, device="cuda"),
+    counterfactual_check=False,  # rollback (B, safety_check.py), needs enabled=True
+    rollback_mode="pool",  # "pool" / "collision"
+)
+# scene_input packet for the language model (C, packet.py); also used by attach_packet_dumper
+lang_packet_cfg = dict(
+    type="LangPacketBuilder",
+    num_agents=12,
+    num_map=6,
+    ego_fut_ts=ego_fut_ts,
+    ego_fut_mode=ego_fut_mode,
+    meta_action=dict(dt=0.5, lat_thresh=2.0),
+)
+
 embed_dims = 256
 num_groups = 8
 num_decoder = 6
@@ -674,6 +694,9 @@ model = dict(
             ),
             num_det=50,
             num_map=10,
+            language_module=language_module,
+            lang_packet_cfg=lang_packet_cfg,
+            lang_packet_refine_idx=-1,
         ),
     ),
 )
