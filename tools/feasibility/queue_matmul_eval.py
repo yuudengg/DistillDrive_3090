@@ -27,6 +27,7 @@ def main():
     ap.add_argument("--run", required=True, help="output sub-directory name")
     ap.add_argument("--mode", choices=C.PRECISION_MODES, default="repo")
     ap.add_argument("--config", default=C.DEFAULT_CONFIG)
+    ap.add_argument("--ckpt", default=C.DEFAULT_CKPT)
     ap.add_argument("--no-save", action="store_true", help="do not keep outputs.pkl")
     ap.add_argument("--eval-layer", type=int, default=None,
                     help="diagnostic: det/map results for evaluation are read from this decoder "
@@ -47,7 +48,7 @@ def main():
     out_dir = os.path.join(C.OUT_ROOT, "queue_eval", args.run)
     os.makedirs(out_dir, exist_ok=True)
 
-    model, _ = C.build_model(cfg)
+    model, _ = C.build_model(cfg, ckpt=args.ckpt)
     C.apply_precision(model, args.mode)
     model.cuda().eval()
     match_stats = {}
@@ -57,7 +58,7 @@ def main():
 
     report = dict(
         variant=args.variant, mode=args.mode, seed=args.seed, config=args.config,
-        eval_layer=args.eval_layer,
+        ckpt=args.ckpt, eval_layer=args.eval_layer,
         flags=dict(
             cuda_matmul_allow_tf32=torch.backends.cuda.matmul.allow_tf32,
             cudnn_allow_tf32=torch.backends.cudnn.allow_tf32,
