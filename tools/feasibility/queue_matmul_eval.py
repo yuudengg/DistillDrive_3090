@@ -25,6 +25,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--variant", choices=["original", "matmul"], required=True)
     ap.add_argument("--run", required=True, help="output sub-directory name")
+    ap.add_argument("--out-dir", default=None,
+                    help="write report/metrics here instead of outputs/queue_eval/<run>")
     ap.add_argument("--mode", choices=C.PRECISION_MODES, default="repo")
     ap.add_argument("--config", default=C.DEFAULT_CONFIG)
     ap.add_argument("--ckpt", default=C.DEFAULT_CKPT)
@@ -45,7 +47,7 @@ def main():
     np.random.seed(args.seed)
     torch.manual_seed(args.seed)
     torch.cuda.manual_seed_all(args.seed)
-    out_dir = os.path.join(C.OUT_ROOT, "queue_eval", args.run)
+    out_dir = args.out_dir or os.path.join(C.OUT_ROOT, "queue_eval", args.run)
     os.makedirs(out_dir, exist_ok=True)
 
     model, _ = C.build_model(cfg, ckpt=args.ckpt)
