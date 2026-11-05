@@ -114,7 +114,13 @@ R50 stage2 distribution 모델의 경량화가 RTX 3090 1장에서 가능한지 
 
 ---
 
-## 7. 다음 단계 제안: 4층 회복 학습 (실행 안 함)
+## 7. 다음 단계 제안: 4층 회복 학습
+
+> **2026-11-05 갱신**: 이 제안을 바탕으로 작성된 config(`configs/recover_stage2_distribution_layers4.py`, C)로 3에폭 학습과 에폭별 평가를 마쳤습니다.
+> - 3에폭 결과: L2 0.769, NDS 0.342, Det mAP 0.272, Map mAP 0.411. 6층 대비 각각 +0.057 / −0.039 / −0.027 / −0.010입니다.
+> - 자세한 내용은 REPORT.md "회복 학습 C" 절에 있습니다.
+> - 6층 대조군 D(`configs/recover_stage2_distribution_layers6.py`)는 아직 실행하지 않았습니다.
+> - 아래는 실행 전에 작성한 원래 제안입니다.
 
 **config 초안** — `tools/feasibility/configs/recover_stage2_distribution_layers4.py`로 새로 만들기를 권합니다.
 
