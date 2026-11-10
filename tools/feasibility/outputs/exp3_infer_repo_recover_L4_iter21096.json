@@ -1,0 +1,25 @@
+{
+  "mode": "repo",
+  "config": "tools/feasibility/configs/stage2_distribution_layers4.py",
+  "ckpt": "work_dirs/recover_stage2_distribution_layers4/iter_21096.pth",
+  "queue": "matmul",
+  "deploy": "distillation_head excluded (with_distillation=False)",
+  "cudnn_benchmark": false,
+  "dropped_teacher_keys": 260,
+  "model_params": {
+    "params_M": 69.719247,
+    "param_MB": 265.957820892334,
+    "buffer_MB": 0.20304107666015625
+  },
+  "bench": {
+    "n_timed": 100,
+    "latency_ms_mean": 65.82834761065897,
+    "latency_ms_std": 0.3547509410867535,
+    "fps": 15.191023871880986,
+    "latency_ms_median": 65.76034100726247,
+    "latency_ms_p90": 66.22999290702865,
+    "model_static_alloc_MB": 270.48583984375,
+    "peak_allocated_MB": 556.15185546875,
+    "peak_reserved_MB": 728.0
+  }
+}
