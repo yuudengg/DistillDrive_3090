@@ -76,7 +76,7 @@ R50 stage2 distribution 모델의 경량화가 RTX 3090 1장에서 가능한지 
 2. **층을 자르면 하류가 깨짐**: det/map head의 마지막 층 출력이 instance bank 캐시(다음 프레임 temporal attention)와 motion_plan_head로 들어갑니다. 층을 줄이면 이 입력이 학습 때와 달라져서 성능이 크게 떨어집니다(아래 6절). 장면 전환 프레임에서도 이전 장면 캐시가 temporal attention 키로 쓰입니다.
 3. **map decoder는 `output_idx`를 무시**: 항상 `[-1]` 층을 씁니다 (`projects/mmdet3d_plugin/models/map/decoder.py` 27-29행). 중간 층 예측을 평가하려면 `common.read_eval_layer`처럼 층 목록을 잘라서 넘겨야 합니다.
 4. **FP16을 head까지 쓰려면**: `DistillDrive.forward`의 `@force_fp32`가 바깥 autocast를 꺼서, head 단에서 autocast를 다시 켜야 합니다. 그러면 장면 전환 프레임(Δt 약 −43만 초)에서 `anchor_projection`과 `anchor_encoder`가 fp16 범위를 넘어 NaN이 나고, 캐시를 타고 이후 모든 프레임으로 퍼집니다. 이 두 곳만 fp32로 두면 해결됩니다(`common.apply_precision(..., "full_amp")`). 또 `post_process`의 `@force_fp32(apply_to=("model_outs"))`는 인자 이름이 안 맞아 실제로 캐스팅하지 않습니다.
-5. **`InstanceQueue.prepare_motion` 병목**: 추적 매칭을 900×900×256 브로드캐스트로 계산해서 텐서 829MB(배치 4면 3.2GB)를 매번 만듭니다. matmul로 바꾸면 연산·기울기 모두 결과가 동일하고, 추론 −10.6ms, 학습 peak −2.1GB, iter −5.4%입니다 (확인). **소스에는 반영하지 않았습니다.** 측정 도구에서는 `common.set_queue_variant("matmul")`로 켭니다. 실제 학습에 쓰려면 소스 수정이나 별도 래퍼가 필요합니다. 참고로 실제 학습에서 이 연산으로는 기울기가 흐르지 않습니다(큐 텐서가 `detach`됨).
+5. **`InstanceQueue.prepare_motion` 병목**: 추적 매칭을 900×900×256 브로드캐스트로 계산해서 텐서 829MB(배치 4면 3.2GB)를 매번 만듭니다. matmul로 바꾸면 연산·기울기 모두 결과가 동일하고, 추론 −10.6ms, 학습 peak −2.1GB, iter −5.4%입니다 (확인). **2026-11-12에 소스에 반영했습니다**(커밋 `a567809`). 이제 `tools/train.py`·`tools/test.py`가 그대로 matmul로 돕니다. 실제 stage2 학습 100 iter에서 peak 메모리는 11,239 → 9,121 MB였습니다. 측정 도구의 `--variant original`은 예전 브로드캐스트 식을 그대로 씁니다. 참고로 실제 학습에서 이 연산으로는 기울기가 흐르지 않습니다(큐 텐서가 `detach`됨).
 6. **INT8 불가 (현 환경)**: TensorRT·pytorch-quantization·ONNX가 없고, torch 내장 양자화는 CPU 전용입니다. DAF는 fp32 전용 커널, flash-attn은 fp16 전용이라 INT8 경로가 없습니다.
 
 ---
@@ -147,7 +147,7 @@ lr_config = dict(policy="CosineAnnealing", warmup="linear", warmup_iters=500,
 - 그대로 두는 것: 배치 4 × 누적 12(유효 48), AdamW, backbone `lr_mult=0.1`, grad clip 25, fp16(loss_scale 32), `with_cp=True`, teacher와 증류 손실 전부.
 - **에폭 수**: 3(권장) 또는 2. cosine은 정한 길이 끝에서 학습률이 0 근처가 되므로, 2로 했다가 늘리기는 깔끔하지 않습니다. 3이면 1·2에폭 중간 평가로 방향을 볼 수 있습니다.
 - **학습률**: 1e-4(권장) 또는 원래 값 3e-4. 이미 수렴한 가중치라 하류 적응만 필요해서 낮게 두는 쪽을 권합니다. 3e-4는 1e-4로 부족할 때 시도.
-- **`prepare_motion`**: 원래 식(소스 수정 없음) 또는 matmul(메모리·속도 이득, 소스 수정 필요). 결과는 같습니다.
+- **`prepare_motion`**: 원래 식(소스 수정 없음) 또는 matmul(메모리·속도 이득, 소스 수정 필요). 결과는 같습니다. → 2026-11-12에 matmul을 소스에 반영했습니다. C·D·E 학습은 그 전이라 원래 식이었습니다.
 - 위 세 가지는 아직 정하지 않았습니다.
 
 **실행과 평가**

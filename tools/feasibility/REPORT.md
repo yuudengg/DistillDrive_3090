@@ -1,6 +1,8 @@
 # DistillDrive R50 (stage2 distribution) 가지치기·양자화 실현 가능성 — RTX 3090 1장
 
 - 대상: `projects/configs/stage2/distilldrive_stage2_distribution.py` + `checkpoint/distilldrive_stage2_distribution.pth`
+> **2026-11-12 변경**: `InstanceQueue.prepare_motion`의 matmul 교체(실험 A)를 소스에 반영했습니다(커밋 `a567809`). 이 날짜 이전의 학습(stage2, 회복 학습 C·D·E)은 원래 브로드캐스트 식으로 했고, 평가·측정은 스크립트 안에서 matmul로 바꿔서 했습니다. 두 식은 순전파·기울기가 같아서 결과에는 차이가 없습니다. 측정 도구의 `--variant original`은 예전 식(`common.prepare_motion_broadcast`)을 그대로 씁니다.
+
 - 원칙: 재학습 없음. 기존 config·체크포인트·학습 코드는 수정하지 않고, 바꿔야 하는 부분(teacher 제거, 정밀도 모드, fp32 fallback)은 스크립트 안에서 메모리상으로만 적용함
 - 배포 모델: `distillation_head` 제외 (`with_distillation=False`; teacher 출력은 KD loss에서만 쓰이므로 추론 결과에는 영향 없음). 체크포인트에서 빠진 키는 `head.distillation_head.*` 260개뿐이고 missing key는 0개
 - 측정: 배치 1, 연속된 val 프레임으로 워밍업 10회 후 100회 평균. forward 앞뒤로 `torch.cuda.synchronize()`, H2D 복사는 시간에서 제외. `max_memory_allocated`/`max_memory_reserved` 둘 다 기록
@@ -64,7 +66,7 @@ transient = 해당 모듈 호출 중 peak − 호출 직전 할당, retained = �
 | 배포 모델 전체 | 86.55 / 330.2 | | | |
 
 핵심 발견: **motion_plan_head의 약 800MB가 추론 활성값 peak를 결정합니다** (정밀도와 무관).
-- profiler(`probe_motion_head_fp32.txt`)로 확인한 원인은 `InstanceQueue.prepare_motion`([instance_queue.py:130-139](../../projects/mmdet3d_plugin/models/motion/instance_queue.py#L130-L139))입니다. 추적 매칭을 `(match[..., None] * temp_feature[:, None]).sum(dim=2)`로 구현해서, `[1,900,900,1] × [1,1,900,256]` = **829MB fp32 텐서**를 큐 길이(4)만큼 매 프레임 만들고 버립니다. 이 `aten::mul` 하나가 전체 CUDA 시간의 약 15%(12.5ms)를 차지합니다.
+- profiler(`probe_motion_head_fp32.txt`)로 확인한 원인은 `InstanceQueue.prepare_motion`(2026-11-12 이전 [instance_queue.py:130-139](../../projects/mmdet3d_plugin/models/motion/instance_queue.py#L130-L139), 지금은 matmul로 교체됨)입니다. 추적 매칭을 `(match[..., None] * temp_feature[:, None]).sum(dim=2)`로 구현해서, `[1,900,900,1] × [1,1,900,256]` = **829MB fp32 텐서**를 큐 길이(4)만큼 매 프레임 만들고 버립니다. 이 `aten::mul` 하나가 전체 CUDA 시간의 약 15%(12.5ms)를 차지합니다.
 - 이 연산은 one-hot 행렬곱과 같습니다. `torch.matmul(match.float(), temp_feature)`로 바꿔 검증한 결과는 다음과 같습니다(`probe_queue_matmul.py`, 소스 미수정·스크립트 내 교체).
 
 | 모드 | 원본 지연 / peak alloc / reserved | matmul 지연 / peak alloc / reserved | 연산 단위 최대 차이 |
@@ -641,7 +643,7 @@ D는 원래 6층 체크포인트(79.9 ms, 620 MB)와 같습니다. 구조가 같
 | map decoder만 4층 + 회복 학습 3에폭 | **절충안, 충돌률은 나쁨** | 3회 평균 L2 0.720, NDS 0.378, Det 0.293, Map 0.418로 D 대비 손실이 C의 절반 이하. obj_box_col 0.282%로 C·D보다 높음. 추론 72.1 ms (D 대비 −9%). 학습 1회라 학습 간 흔들림 미확인 (회복 학습 E) |
 
 - 3090 한 장에서 **가지치기 + 미세조정 학습과 FP16 추론은 가능**합니다. QAT는 실측이 필요하고, INT8 배포는 툴체인 설치와 커스텀 연산 처리가 먼저 해결돼야 합니다.
-- 지금까지 찾은 가장 큰 무손실 이득은 가지치기도 양자화도 아닌 **`InstanceQueue.prepare_motion` 연산 교체**입니다. 적용하려면 `instance_queue.py`를 수정해야 해서 소스에는 반영하지 않았습니다.
+- 지금까지 찾은 가장 큰 무손실 이득은 가지치기도 양자화도 아닌 **`InstanceQueue.prepare_motion` 연산 교체**입니다. 2026-11-12에 소스(`instance_queue.py`)에 반영했습니다. 실제 stage2 학습 100 iter로 peak 메모리 11,239 → 9,121 MB(−2.1GB)를 확인했습니다.
 - 메모리·시간을 가장 많이 쓰는 연산은 deformable(det 37%/48%, map 94%/86%)과 attention인데, 둘 다 커스텀 CUDA(DAF, flash-attn)라 Torch-Pruning으로 바로 자르기 어렵습니다. 쉽게 자를 수 있는 FFN은 비중이 작습니다.
 - 층 수 축소는 지연·메모리 이득이 크지만, 재학습 없이는 지표가 무너집니다. 학습 로그상 층 3~4 이후 손실이 거의 줄지 않으므로, 미세조정과 함께라면 검토할 가치가 있는 후보입니다(추정).
 - 지표 비교 시에는 평가 흔들림(L2 ±약 0.0012 폭 등, "평가 비결정성" 절)을 기준으로 판단해야 합니다.
