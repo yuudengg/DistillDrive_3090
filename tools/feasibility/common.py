@@ -158,14 +158,35 @@ def prepare_motion_matmul(self, det_output, mask):
     self.period = torch.clip(self.period, 0, self.queue_length)
 
 
+def prepare_motion_broadcast(self, det_output, mask):
+    """The pre-2026-11-12 InstanceQueue.prepare_motion: (B, N, N, C) broadcast-sum.
+    The source now uses the matmul form; this keeps --variant original reproducible."""
+    instance_feature = det_output["instance_feature"]
+    det_anchors = det_output["prediction"][-1]
+    if self.period == None:  # noqa: E711  (mirrors the original)
+        self.period = instance_feature.new_zeros(instance_feature.shape[:2]).long()
+    else:
+        match = _tracking_match(self, det_output)
+        for i in range(len(self.instance_feature_queue)):
+            self.instance_feature_queue[i] = (match[..., None] * self.instance_feature_queue[i][:, None]).sum(dim=2)
+            self.anchor_queue[i] = (match[..., None] * self.anchor_queue[i][:, None]).sum(dim=2)
+        self.period = (match * self.period[:, None]).sum(dim=2)
+    self.instance_feature_queue.append(instance_feature.detach())
+    self.anchor_queue.append(det_anchors.detach())
+    self.period += 1
+    if len(self.instance_feature_queue) > self.queue_length:
+        self.instance_feature_queue.pop(0)
+        self.anchor_queue.pop(0)
+    self.period = torch.clip(self.period, 0, self.queue_length)
+
+
 def set_queue_variant(variant, match_stats=None):
-    """variant: "original" | "matmul". With match_stats (dict), every call also
-    records the match matrix dtype, its distinct values and max matches per row."""
+    """variant: "original" (broadcast-sum, the pre-2026-11-12 source) | "matmul" (same as the
+    current source). With match_stats (dict), every call also records the match matrix dtype,
+    its distinct values and max matches per row."""
     from projects.mmdet3d_plugin.models.motion.instance_queue import InstanceQueue
 
-    if not hasattr(InstanceQueue, "_orig_prepare_motion"):
-        InstanceQueue._orig_prepare_motion = InstanceQueue.prepare_motion
-    impl = InstanceQueue._orig_prepare_motion if variant == "original" else prepare_motion_matmul
+    impl = prepare_motion_broadcast if variant == "original" else prepare_motion_matmul
     if match_stats is None:
         InstanceQueue.prepare_motion = impl
         return
