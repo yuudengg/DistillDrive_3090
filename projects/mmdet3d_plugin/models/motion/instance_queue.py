@@ -126,18 +126,21 @@ class InstanceQueue(nn.Module):
                 temp_mask = self.prev_confidence > self.tracking_threshold
                 match = match * temp_mask.unsqueeze(1)
 
-            for i in range(len(self.instance_feature_queue)):
-                temp_feature = self.instance_feature_queue[i]
-                temp_feature = (
-                    match[..., None] * temp_feature[:, None]
-                ).sum(dim=2)
-                self.instance_feature_queue[i] = temp_feature
+            # match is a 0/1 matrix with at most one 1 per row and column, so
+            # (match[..., None] * x[:, None]).sum(dim=2) == match @ x exactly (forward and
+            # gradient). The matmul avoids the [B, N, N, C] broadcast (900x900x256 per sample).
+            # autocast off: a one-hot gather must not round fp32 queue entries to fp16.
+            with torch.autocast(device_type="cuda", enabled=False):
+                for i in range(len(self.instance_feature_queue)):
+                    temp_feature = self.instance_feature_queue[i]
+                    self.instance_feature_queue[i] = torch.matmul(
+                        match.to(temp_feature.dtype), temp_feature
+                    )
 
-                temp_anchor = self.anchor_queue[i]
-                temp_anchor = (
-                    match[..., None] * temp_anchor[:, None]
-                ).sum(dim=2)
-                self.anchor_queue[i] = temp_anchor
+                    temp_anchor = self.anchor_queue[i]
+                    self.anchor_queue[i] = torch.matmul(
+                        match.to(temp_anchor.dtype), temp_anchor
+                    )
 
             self.period = (
                 match * self.period[:, None]
