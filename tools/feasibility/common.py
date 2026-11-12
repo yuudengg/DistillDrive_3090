@@ -181,12 +181,15 @@ def prepare_motion_broadcast(self, det_output, mask):
 
 
 def set_queue_variant(variant, match_stats=None):
-    """variant: "original" (broadcast-sum, the pre-2026-11-12 source) | "matmul" (same as the
-    current source). With match_stats (dict), every call also records the match matrix dtype,
+    """variant: "original" (broadcast-sum, the pre-2026-11-12 source) | "matmul" (this file's
+    copy, same maths as the current source) | "source" (the source method itself, unpatched). With match_stats (dict), every call also records the match matrix dtype,
     its distinct values and max matches per row."""
     from projects.mmdet3d_plugin.models.motion.instance_queue import InstanceQueue
 
-    impl = prepare_motion_broadcast if variant == "original" else prepare_motion_matmul
+    if not hasattr(InstanceQueue, "_source_prepare_motion"):
+        InstanceQueue._source_prepare_motion = InstanceQueue.prepare_motion
+    impl = {"original": prepare_motion_broadcast, "matmul": prepare_motion_matmul,
+            "source": InstanceQueue._source_prepare_motion}[variant]
     if match_stats is None:
         InstanceQueue.prepare_motion = impl
         return

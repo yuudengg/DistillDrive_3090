@@ -23,7 +23,7 @@ from infer_bench import evaluate, run_inference
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--variant", choices=["original", "matmul"], required=True)
+    ap.add_argument("--variant", choices=["original", "matmul", "source"], required=True)
     ap.add_argument("--run", required=True, help="output sub-directory name")
     ap.add_argument("--out-dir", default=None,
                     help="write report/metrics here instead of outputs/queue_eval/<run>")
