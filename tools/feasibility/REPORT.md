@@ -1,7 +1,7 @@
 # DistillDrive R50 (stage2 distribution) 가지치기·양자화 실현 가능성 — RTX 3090 1장
 
 - 대상: `projects/configs/stage2/distilldrive_stage2_distribution.py` + `checkpoint/distilldrive_stage2_distribution.pth`
-> **2026-11-12 변경**: `InstanceQueue.prepare_motion`의 matmul 교체(실험 A)를 소스에 반영했습니다(커밋 `a567809`). 이 날짜 이전의 학습(stage2, 회복 학습 C·D·E)은 원래 브로드캐스트 식으로 했고, 평가·측정은 스크립트 안에서 matmul로 바꿔서 했습니다. 두 식은 순전파·기울기가 같아서 결과에는 차이가 없습니다. 측정 도구의 `--variant original`은 예전 식(`common.prepare_motion_broadcast`)을 그대로 씁니다.
+> **2026-11-12 변경**: `InstanceQueue.prepare_motion`의 matmul 교체(실험 A)를 소스에 반영했습니다(커밋 `a567809`). 이 날짜 이전의 학습(stage2, 회복 학습 C·D·E)은 원래 브로드캐스트 식으로 했고, 평가·측정은 스크립트 안에서 matmul로 바꿔서 했습니다. 두 식은 순전파·기울기가 같아서 결과에는 차이가 없습니다. 측정 도구의 `--variant original`은 예전 식(`common.prepare_motion_broadcast`)을 그대로 씁니다. teacher(`dlp_instance_queue.py`)는 바꾸지 않았습니다(회복 학습 E 절 끝 참고).
 
 - 원칙: 재학습 없음. 기존 config·체크포인트·학습 코드는 수정하지 않고, 바꿔야 하는 부분(teacher 제거, 정밀도 모드, fp32 fallback)은 스크립트 안에서 메모리상으로만 적용함
 - 배포 모델: `distillation_head` 제외 (`with_distillation=False`; teacher 출력은 KD loss에서만 쓰이므로 추론 결과에는 영향 없음). 체크포인트에서 빠진 키는 `head.distillation_head.*` 260개뿐이고 missing key는 0개
@@ -607,6 +607,28 @@ D는 원래 6층 체크포인트(79.9 ms, 620 MB)와 같습니다. 구조가 같
 - **obj_box_col은 E가 가장 나쁩니다**(E 0.282% > C 0.260% > D 0.232%). E − C 차이(+0.022%p)는 평가 표준편차의 5배 이상이라 평가 흔들림만으로는 설명되지 않습니다.
 - det는 줄이지 않았는데 Det mAP가 D보다 0.005 낮습니다. 줄인 map이 같은 미세조정 중 det 학습에 영향을 줬을 수 있습니다(추정).
 - **한계**: 학습은 1회뿐입니다. 위 표준편차는 같은 체크포인트를 다시 평가할 때의 흔들림만 포함하고, 학습을 반복할 때의 흔들림은 포함하지 않습니다. 그래서 충돌률 순서(E > C)나 Det mAP −0.005가 구조 때문인지, 이번 학습의 우연인지는 구분하지 못했습니다.
+
+**소스 반영 후 확인 (2026-11-12, 확인)** — `prepare_motion` matmul을 소스에 반영한 뒤(커밋 `a567809`), E 기준으로 다시 확인했습니다.
+
+| 항목 | 반영 전 (원래 식) | 반영 후 (소스 matmul) |
+|---|---:|---:|
+| 학습 memory (E config, iter 51) | 10,552 MB | **8,428 MB (−2.1GB)** |
+| 처음 50 iter 시간 | 0.876 s | 0.834 s (−4.8%) |
+
+- 학습 메모리는 E config로 `tools/train.py`를 100 iter 돌려서 쟀습니다. 결과 폴더는 지웠습니다.
+- 평가는 같은 E 3에폭 체크포인트를 `queue_matmul_eval.py --variant source`로 1회 했습니다. 함수를 바꿔 끼우지 않고 소스를 그대로 쓰는 옵션입니다.
+
+| 지표 | 소스 그대로 1회 | 이전 3회 (스크립트 matmul) 범위 | 차이 (평균 대비) |
+|---|---:|---:|---:|
+| L2 (m) | 0.7187 | 0.7192 ~ 0.7205 | −0.0010 |
+| obj_box_col | 0.284% | 0.280% ~ 0.283% | +0.002%p |
+| NDS | 0.3784 | 0.3780 ~ 0.3788 | +0.0001 |
+| Det mAP | 0.2931 | 0.2924 ~ 0.2933 | +0.0004 |
+| Map mAP | 0.4177 | 0.4176 ~ 0.4177 | +0.0001 |
+
+- L2, obj_box_col, Map mAP는 이전 3회 범위를 조금 벗어났습니다. 다만 모두 기준 모델 4회로 잰 평가 흔들림 폭(L2 0.0012, obj_box_col 0.005%p, Map 0.0002) 안입니다. 3회 범위 밖에 한 번 더 나오는 일은 흔들림만으로도 자주 생깁니다. 그래서 소스 반영 후에도 결과가 같다고 판단합니다.
+- 결과는 `work_dirs/recover_stage2_distribution_det6_map4/eval/iter_21096_source/`에 있습니다.
+- teacher 쪽 `models/dlp/dlp_instance_queue.py`는 바꾸지 않았습니다. 같은 브로드캐스트 식이지만 GT 객체 150개 기준(150×150×256, 샘플당 약 23MB)이라 이득이 작습니다(추정 0.1GB 미만). 또 빈 자리(instance ID −100)끼리 여러 개가 매칭되는 다대다 행렬이라 matmul로 바꾸면 덧셈 순서가 달라져 결과가 비트 단위로 같다고 보장할 수 없습니다. teacher는 학습 때만 돌고 배포 모델에는 없습니다.
 
 ---
 
