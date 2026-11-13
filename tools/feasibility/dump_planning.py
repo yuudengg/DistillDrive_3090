@@ -153,7 +153,8 @@ def main():
     ap.add_argument("--config", default=C.DEFAULT_CONFIG)
     ap.add_argument("--ckpt", default=C.DEFAULT_CKPT)
     ap.add_argument("--out", required=True, help="output pkl path")
-    ap.add_argument("--variant", choices=["original", "matmul"], default="matmul")
+    ap.add_argument("--variant", choices=["original", "matmul", "source"], default="source",
+                    help="prepare_motion: source = the repo code as is (matmul since 2026-11-12)")
     ap.add_argument("--agent-thresh", type=float, default=0.05)
     ap.add_argument("--limit", type=int, default=None, help="first N frames only (smoke test)")
     ap.add_argument("--seed", type=int, default=0)
