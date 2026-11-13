@@ -159,9 +159,16 @@ def main():
     ap.add_argument("--limit", type=int, default=None, help="first N frames only (smoke test)")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--workers", type=int, default=4)
+    ap.add_argument("--ann-file", default=None,
+                    help="infos pkl to run on instead of the config's val infos (test + planning-eval GT)")
     args = ap.parse_args()
 
     cfg = C.load_cfg(args.config)
+    if args.ann_file:
+        cfg.data.test.ann_file = args.ann_file
+        cfg.eval_config.ann_file = args.ann_file
+        if "eval_config" in cfg.data.test:
+            cfg.data.test.eval_config.ann_file = args.ann_file
     random.seed(args.seed); np.random.seed(args.seed)
     torch.manual_seed(args.seed); torch.cuda.manual_seed_all(args.seed)
     os.makedirs(os.path.dirname(os.path.abspath(args.out)), exist_ok=True)
@@ -179,7 +186,7 @@ def main():
     records = [compact(r, dataset.data_infos[i], i, args.agent_thresh) for i, r in enumerate(results)]
     del results
     add_planning_gt(cfg, records, args.workers)
-    meta = dict(config=args.config, ckpt=args.ckpt, variant=args.variant, mode="repo",
+    meta = dict(config=args.config, ckpt=args.ckpt, variant=args.variant, mode="repo", ann_file=args.ann_file,
                 seed=args.seed, agent_thresh=args.agent_thresh, inference_min=t_inf,
                 frame="lidar (x right, y forward), metres; planning steps 0.5 s",
                 n_records=len(records), metric=official_style(records))
