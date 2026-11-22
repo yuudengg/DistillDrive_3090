@@ -672,6 +672,67 @@ D·E를 시드만 바꿔(시드 0 → 1) 한 번씩 더 학습하고, 각 3에�
 
 ---
 
+## Sparse Query 학습 없이 적용 (E, 2026-11-23) — **판정: 효과가 작아 제외** (추론 지연 −0.9%, 추론 메모리 −0.6~1.3%, 학습 메모리 −5.6%. 성능 평가는 하지 않음)
+
+조원이 구현한 Sparse Query(PR #2, `lightweighting`에 `83e39b6`으로 병합)를 최종 모델 E에 학습 없이 붙여서 속도·메모리만 쟀습니다. Sparse Query는 planning decoder에 들어가는 객체 쿼리를 900개에서 상위 K개(num_query = 64)로 줄이는 방식입니다. 이 결과로 계획서·발표에서는 Sparse Query를 빼기로 정했고, 성능 평가(평가 6회)는 하지 않았습니다.
+
+**코드와 설정**
+- 브랜치 `exp/sparse-query-eval`: E 학습 브랜치(`feasibility/r50-stage2`, `3a4ddbb`)에 `origin/lightweighting`을 병합했습니다(`f9c13f1`). 충돌은 없었습니다.
+- 들어온 것은 조원 파일 7개입니다. 그중 기존 파일 수정은 2곳입니다.
+  - `motion/__init__.py`: 새 head 등록 1줄
+  - `distilldrive_head.py`: 평가 때 teacher 실행을 생략. teacher 출력은 증류 loss에만 쓰이므로 평가 결과에는 영향이 없습니다.
+- config `configs/stage2_distribution_det6_map4_sq.py`(새 파일):
+  - E config에서 planning head만 `SparseQueryMotionPlanningHead`로 바꿨습니다.
+  - Sparse Query 설정은 조원 config(`distilldrive_stage2_distribution_sq.py`)와 같습니다: num_query 64, min_keep_score 0.5, generative_hidden "preserve", preserve_rescore True.
+  - det 쿼리 900, map 쿼리 100, 후보 18개, decoder 층 수(det 6 / map 4)는 그대로입니다. config를 읽어서 비교해 확인했습니다.
+- 측정 스크립트 `sq_measure.py`(새 파일): 기존 `infer_bench.py`·`train_memory.py`를 고치지 않고 그대로 실행합니다. 결과는 `work_dirs/sparse_query_eval/`에 저장하고, head가 매 forward마다 남기는 `sq_stats`(남은 쿼리 수 등)를 기록합니다.
+- `sq_eval.py`(새 파일): 평가용 실행 스크립트입니다. 평가를 하지 않기로 해서 실행하지 않았습니다.
+
+**적용 전 확인 (확인)**
+- **새로 학습해야 하는 가중치는 없습니다.** Sparse Query 모델과 E 모델은 파라미터 수(77,329,569개)와 가중치 이름 목록이 같습니다. 쿼리는 기존 검출 점수 상위 K개로 고릅니다(`select_queries`).
+- **E 체크포인트(시드 0·1, iter_21096)를 불러오면** missing key 0개, unexpected key는 teacher(`head.distillation_head.*`) 260개뿐입니다. teacher는 배포 모델에서 원래 빼는 부분입니다.
+
+**속도·메모리 (E 시드 0 체크포인트)**
+- 조건:
+  - 측정 직전 `nvidia-smi`로 다른 계산 프로세스가 0개인 것을 확인했습니다.
+  - 추론은 `infer_bench.py --mode repo --queue matmul`, 배치 1, 워밍업 10회 + 100회입니다. E → Sparse Query → E 순서로 쟀습니다.
+  - 학습 메모리는 `train_memory.py --batch 4 --iters 50 --queue matmul`이고, 학습률을 0으로 둔 optimizer step을 썼습니다. AdamW 상태 메모리 588 MB는 실제 학습처럼 잡히고, 가중치는 측정 전후 체크섬이 같아 바뀌지 않았습니다. 체크포인트는 저장하지 않았습니다.
+
+| 항목 | 기존 E | Sparse Query (num_query 64) | 차이 |
+|---|---:|---:|---:|
+| 추론 지연 | 72.29 ms (1회 72.46 / 2회 72.13) | 71.66 ms | −0.63 ms (−0.9%) |
+| FPS | 13.83 | 13.95 | +0.9% |
+| 추론 peak allocated | 584.1 MB | 580.8 MB | −3.3 MB (−0.6%) |
+| 추론 peak reserved | 762 MB | 752 MB | −10 MB (−1.3%) |
+| 학습 peak allocated (배치 4, 50 step) | 7,770 MB | 7,336 MB | −434 MB (−5.6%) |
+| 학습 peak reserved | 10,710 MB | 9,752 MB | −958 MB (−8.9%) |
+| 학습 step 시간 (10번째 step 이후 평균) | 771 ms | 748 ms | −23 ms (−3.0%) |
+
+- E를 두 번 잰 추론 지연의 차이는 0.32 ms입니다. Sparse Query로 줄어든 0.63 ms는 측정 흔들림의 약 2배입니다.
+- 오늘 잰 E 값은 회복 학습 E 절의 값(72.1 ms, 584 / 762 MB)과 같습니다.
+- 학습 peak는 측정 스크립트 값입니다. 실제 E 학습 로그의 peak 8,428 MB보다 약 8% 낮습니다. 같은 비율이라면 Sparse Query 실제 학습 peak는 약 7,960 MB입니다(추정).
+
+**남는 쿼리 수 (`sq_stats`, 확인)**
+
+| 상황 | 남은 쿼리 수: 평균 / 최소 / 최대 | 꼭 남기는 것 (평균) |
+|---|---|---|
+| 추론 (지연 측정 중 110번 forward, 검증셋 앞쪽 프레임) | 64.5 / 64 / 86 | 검출 점수 ≥ 0.5 객체 6.2개, GRU 초기 상태용 칸 30개 |
+| 학습 (50 step) | 90.6 / 65 / 107 | 위 두 가지 14.7개·32개 + GT 근처 앵커(학습 전용) 52.4개 |
+
+- 조원 config 주석에는 "실제로는 최소 약 100개가 남는다"고 적혀 있습니다. 하지만 추론에서는 꼭 남겨야 하는 수가 64개보다 적은 경우가 대부분이라, 설정값 64개가 그대로 쓰였습니다. 약 100개는 학습 때 값에 가깝습니다.
+- 추론 수치는 검증셋 앞쪽 110프레임 기준입니다. 검증셋 전체의 분포는 재지 않았습니다.
+
+**해석**
+- planning decoder에 들어가는 쿼리를 900개에서 약 64개로 14분의 1로 줄여도, 추론 지연은 0.9%만 줄었습니다. 추론 시간 대부분은 백본과 det·map decoder가 쓰기 때문으로 보입니다(추정). 6층 기준 det head 20.0 ms, map head 23.9 ms(전체 80.7 ms, 실험 5 준비 절)였고, planning head는 따로 재지 않았습니다.
+- 추론 메모리 이득이 작은 이유: planning head의 큰 메모리 피크(약 800 MB)는 이미 `prepare_motion` matmul 교체로 없어졌습니다(실험 A, 소스 반영 `a567809`).
+- 학습 메모리는 5.6% 줄었지만, E는 이미 3090에 여유 있게 들어갑니다(8.4 GB / 24 GB).
+- 성능(L2, 충돌률 등)은 평가하지 않았습니다. 그래서 "성능이 유지된다"는 확인하지 않았습니다.
+- 2안(위험 점수 재선택)과 함께 쓰는 문제도 확인하지 않았습니다. Sparse Query는 검출 점수 0.5 미만 객체의 예측 궤적을 정지 상태로 채우는데, 위험 점수는 점수 0.3(민감도 0.1) 이상 객체를 씁니다.
+
+결과 파일은 `work_dirs/sparse_query_eval/bench/`, `work_dirs/sparse_query_eval/train_memory/`(git 제외)에 있습니다.
+
+---
+
 ## 실험 7. 언어 모듈(LLM) 동시 실행 — **보류 - 언어 모듈 모델 미정**
 
 언어 모듈로 쓸 모델이 확정되면 DistillDrive와 동시에 올렸을 때의 메모리 합계와 2토큰/40토큰 생성 시간을 측정합니다.
