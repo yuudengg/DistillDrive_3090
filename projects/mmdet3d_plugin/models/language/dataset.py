@@ -83,10 +83,12 @@ class ReasonTextDataset(Dataset):
     def __init__(self, label_file: str, info_pkl: str, validate: bool = True, max_samples: int = None, object_topn: int = 8):
         import pickle
 
-        with open(info_pkl, "rb") as f:
-            data = pickle.load(f)
-        infos = data["infos"] if isinstance(data, dict) else data
-        by_token = {info["token"]: info for info in infos}
+        by_token = {}
+        for path in [info_pkl] if isinstance(info_pkl, str) else info_pkl:  # several pkls: tokens may sit in train or val
+            with open(path, "rb") as f:
+                data = pickle.load(f)
+            infos = data["infos"] if isinstance(data, dict) else data
+            by_token.update({info["token"]: info for info in infos})
         rows, texts, n_missing, n_bad = [], {}, 0, 0
         with open(label_file, "r", encoding="utf-8") as f:
             for line in f:

@@ -47,7 +47,7 @@ def main():
     ap.add_argument("--tiny", action="store_true")
     ap.add_argument("--labels", required=True)
     ap.add_argument("--packets", default=None, help="packet dir (embedding route)")
-    ap.add_argument("--pkl", default=None, help="nuScenes info pkl (text route; meta acc is then trivially 1.0)")
+    ap.add_argument("--pkl", nargs="+", default=None, help="nuScenes info pkl(s) (text route; meta acc is then trivially 1.0)")
     ap.add_argument("--out", required=True)
     ap.add_argument("--meta-source", choices=["gt", "pred"], default="pred")
     ap.add_argument("--with-objects", action="store_true")
