@@ -432,7 +432,26 @@ def stage_verify(args):
                             all18_max_abs_diff=float(np.abs(pt - r["plan"]["traj"]).max()),
                             same_selected_index=bool(np.argmin(np.abs(pt[r["cmd"] * 6:r["cmd"] * 6 + 6] - ft).sum((1, 2))) == r["A"]["mode"])))
         res["official_compare"] = cmp
-        print(cmp)
+        # two separate runs are not bit-identical (non-deterministic CUDA ops): distribution over all frames
+        d = np.array([np.abs(o["img_bbox"]["final_planning"].numpy() - r["A"]["traj"]).max() for o, r in zip(off, recs)])
+        same = np.mean([np.abs(o["img_bbox"]["planning"].numpy().reshape(18, 6, 2)[r["cmd"] * 6:r["cmd"] * 6 + 6]
+                               - o["img_bbox"]["final_planning"].numpy()).sum((1, 2)).argmin() == r["A"]["mode"]
+                        for o, r in zip(off, recs)])
+        res["run_to_run_final_planning_abs_diff"] = dict(median=float(np.median(d)), p90=float(np.quantile(d, .9)),
+                                                         p99=float(np.quantile(d, .99)), max=float(d.max()),
+                                                         same_selected_candidate=float(same))
+        # the official planning_eval itself, on the official run and fed with the dumped A / B trajectories
+        import logging
+        from projects.mmdet3d_plugin.datasets.evaluation.planning.planning_eval import planning_eval
+        cfg = C.load_cfg(CONFIG)
+        lg = logging.getLogger("lang_dump"); lg.setLevel(logging.ERROR)
+        pe = {"official_run": planning_eval(off, cfg.eval_config, lg)}
+        del off
+        for name in ["A", "B"]:
+            fake = [{"img_bbox": {"final_planning": torch.from_numpy(r[name]["traj"].copy())}} for r in recs]
+            pe[f"dump_{name}"] = planning_eval(fake, cfg.eval_config, lg)
+        res["official_planning_eval"] = {k: {m: float(v[m]) for m in ["L2", "obj_box_col"]} for k, v in pe.items()}
+        print(cmp, res["run_to_run_final_planning_abs_diff"], res["official_planning_eval"])
     with open(os.path.join(args.out, "verify.json"), "w") as f:
         json.dump(res, f, indent=1)
 
