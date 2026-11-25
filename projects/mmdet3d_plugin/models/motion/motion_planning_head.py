@@ -29,6 +29,9 @@ from projects.mmdet3d_plugin.models.diffusion import DistributionModule, Predict
 from ..attention import gen_sineembed_for_position
 from ..blocks import linear_relu_ln
 from ..instance_bank import topk
+from ..language import build_language_module
+from ..language.packet import split_packet
+from .safety_check import check_rollback_cfg
 
 
 @HEADS.register_module()
@@ -72,8 +75,12 @@ class MotionPlanningHead(BaseModule):
         kd_loss_de_feats=None,
         motion_decoder=None,
         planning_decoder=None,
+        language_module=None,
         num_det=50,
         num_map=10,
+        lang_packet_cfg=None,
+        lang_packet_refine_idx=-1,
+        lang_packet_dump=False,
     ):
 
         super(MotionPlanningHead, self).__init__()
@@ -114,6 +121,35 @@ class MotionPlanningHead(BaseModule):
             ]
         )
         self.embed_dims = embed_dims
+
+        # =========== language feedback (A 통합) ===========
+        # 철칙: enabled=False(기본)면 출력은 원본과 100% 동일(회귀).
+        lang_cfg = language_module or {}
+        self.use_feedback = lang_cfg.get("enabled", False)
+        self.split = lang_cfg.get("split", None)
+        self.trigger_threshold = lang_cfg.get("trigger_threshold", 0.5)
+        # 롤백(B, safety_check.py): 켜면 1차 결과도 decoder로 넘겨서 1차+2차 후보를 같이 충돌 검사
+        self.counterfactual_check = lang_cfg.get("counterfactual_check", False)
+        self.rollback_mode = lang_cfg.get("rollback_mode", "pool")  # "pool" / "collision"
+        check_rollback_cfg(lang_cfg)  # 롤백(B): 설정 값 오타·조합 실수를 만들 때 바로 확인 (학습 전에 멈춤)
+        # 켜져 있을 때만 만든다 (off면 언어 모델(1.8B)도 안 불러옴)
+        self.adaln = None
+        self.language_model = None
+        if self.use_feedback:
+            self.adaln = build(lang_cfg.get("adaln", None), PLUGIN_LAYERS)  # B: forward(meta_idx)->(g,b,a)
+            # C: infer_batch([scene_input])->[(meta_idx, sentence)], C의 factory로 생성 (type: mock / hf / LanguageModule)
+            self.language_model = build_language_module(lang_cfg.get("language_model", None))
+            assert (self.adaln is not None and self.language_model is not None), (
+                "language_module.enabled=True 인데 adaln/language_model 설정이 없습니다"
+            )
+        # C: 언어모듈 입력(scene_input)을 만드는 패킷 빌더. 되먹임을 켜면 필수, 트리거가 걸린 때만 계산.
+        # lang_packet_dump: forward 끝 패킷을 planning_output에 저장 (덤프용, attach_packet_dumper가 켬)
+        # lang_packet_refine_idx: 그 덤프 패킷에 쓸 refine 출력 (-1 = 마지막)
+        self.lang_packet_builder = build(lang_packet_cfg, PLUGIN_LAYERS)
+        self.lang_packet_refine_idx = lang_packet_refine_idx
+        self.lang_packet_dump = lang_packet_dump
+        if self.use_feedback:
+            assert self.lang_packet_builder is not None, "language feedback needs lang_packet_cfg (scene_input comes from the packet)"
 
         if self.decouple_attn:
             self.fc_before = nn.Linear(
@@ -415,6 +451,7 @@ class MotionPlanningHead(BaseModule):
         planning_status = []
         planning_feature = []
         planning_memory_feature = []
+        planning_rollback = None
         for i, op in enumerate(self.operation_order):
             if self.layers[i] is None:
                 if op == "distribution":
@@ -460,35 +497,87 @@ class MotionPlanningHead(BaseModule):
                     key_pos=map_anchor_embed_selected,
                 )  # [B, N1 + M_E, D]
             elif op == "refine":
-                # get motion and planing feature
-                motion_query = motion_mode_pos + (instance_feature + anchor_embed)[:, :num_anchor].unsqueeze(2) # [B, N1, MA, D]
-                plan_query = plan_mode_pos + (instance_feature + anchor_embed)[:, num_anchor:].unsqueeze(1) # [B, 1, ME, D] 
-                # Only get one Status, Must to commperss in MultiModal
-                ego_feature = self.ego_feature_avp(instance_feature[:, num_anchor:].permute(0, 2, 1)).permute(0, 2, 1) # [B, 1, D]
-                ego_anchor_embed = self.ego_pos_avp(anchor_embed[:, num_anchor:].permute(0, 2, 1)).permute(0, 2, 1)  # [B, 1, D]
-                # Need to update Memory Bank
+                planning_rollback = None  # 롤백용 1차 결과 (마지막 refine 것만 decoder가 씀)
+                # 1st pass (cond=None): identical to the original refine block
                 (
                     motion_cls,
                     motion_reg,
                     plan_cls,
                     plan_reg,
                     plan_status,
-                ) = self.layers[i](
-                    motion_query,
                     plan_query,
-                    ego_feature,
-                    ego_anchor_embed,
+                ) = self._refine_once(
+                    i,
+                    instance_feature,
+                    anchor_embed,
+                    num_anchor,
+                    motion_mode_pos,
+                    plan_mode_pos,
+                    plan_anchor_delta,
+                    cond=None,
                 )
-                # anchor + offset schedule
-                if self.pred_delta:
-                    plan_delta = plan_anchor_delta.clone().flatten(1, 2).unsqueeze(1) # [B, 1, ME, T2, 2]
-                    plan_reg = plan_reg + plan_delta
+                # === STEP 2: feedback 2nd pass (A 통합) ===
+                # 1차 plan_cls가 불확실한 샘플만, 메타행동(말)으로 조건을 만들어 refine만 재실행
+                if self.use_feedback:
+                    use = self._trigger(plan_cls)  # [B] 불확실한 샘플
+                    if use.any():
+                        packet = self._lang_packet(
+                            instance_feature, num_anchor, det_confidence, det_anchors, det_classification,
+                            map_instance_feature_selected, plan_query, plan_reg, plan_cls, metas,
+                        )
+                        meta_idx, use = self._query_language(packet, use)
+                    if use.any():
+                        cond = self.adaln(meta_idx)  # [B] -> (g, b, a) 각 [B, 1, D]
+                        if self.counterfactual_check:
+                            # 롤백(B): 아래 _select로 덮어쓰기 전이라 plan_cls/plan_reg는 1차 결과
+                            planning_rollback = dict(
+                                classification=plan_cls,
+                                prediction=plan_reg,
+                                use=use,
+                                mode=self.rollback_mode,
+                            )
+                        first = (motion_cls, motion_reg, plan_cls, plan_reg, plan_status, plan_query)
+                        second = self._refine_once(
+                            i,
+                            instance_feature,
+                            anchor_embed,
+                            num_anchor,
+                            motion_mode_pos,
+                            plan_mode_pos,
+                            plan_anchor_delta,
+                            cond=cond,
+                        )
+                        # 트리거 + 언어 성공한 샘플만 2차 결과, 나머지는 1차 결과 그대로
+                        (
+                            motion_cls,
+                            motion_reg,
+                            plan_cls,
+                            plan_reg,
+                            plan_status,
+                            plan_query,
+                        ) = [self._select(use, s, f) for s, f in zip(second, first)]
                 motion_classification.append(motion_cls)
                 motion_prediction.append(motion_reg)
                 planning_classification.append(plan_cls)
                 planning_prediction.append(plan_reg)
                 planning_status.append(plan_status)
                 planning_feature.append(plan_query)
+
+        # =========== language packet for dumps (eval only, detached, does not change any driving output) ===========
+        lang_packet = None
+        if self.lang_packet_dump and self.lang_packet_builder is not None and not self.training:
+            ref = self.lang_packet_refine_idx
+            lang_packet = self.lang_packet_builder(
+                agent_feat=instance_feature[:, :num_anchor],
+                agent_conf=det_confidence,
+                agent_boxes=det_anchors,
+                agent_labels=det_classification.argmax(dim=-1),
+                ego_feat_modes=planning_feature[ref][:, 0],  # plan_query [B, 1, 3 * ME, D] -> [B, 3 * ME, D]
+                plan_reg=planning_prediction[ref],
+                plan_cls=planning_classification[ref],
+                cmd=metas.get("gt_ego_fut_cmd") if isinstance(metas, dict) else None,
+                map_feat=map_instance_feature_selected,
+            )
 
         self.instance_queue.cache_motion(instance_feature[:, :num_anchor], det_output, metas)
         self.instance_queue.cache_planning(instance_feature[:, num_anchor:], plan_status)
@@ -509,11 +598,116 @@ class MotionPlanningHead(BaseModule):
             "period": self.instance_queue.ego_period,
             "anchor_queue": self.instance_queue.ego_anchor_queue,
         }
+        if lang_packet is not None:
+            planning_output["lang_packet"] = lang_packet
         # Add distribution to calculate the gradient
         if self.vae_model is True:
             planning_output["distribution"] = output_distribution
+        # 롤백(B): 2차를 쓴 샘플이 있을 때만 넣음 -> 없으면 decoder는 원래 그대로
+        if self.use_feedback and planning_rollback is not None:
+            planning_output["rollback"] = planning_rollback
 
         return motion_output, planning_output
+
+    def _trigger(self, plan_cls):
+        """샘플마다 1차 계획이 불확실하면 True (신뢰도 최댓값 < 임계값). 불확실할 때만 언어 호출.
+        plan_cls [B, 1, ME] -> [B] bool"""
+        with torch.no_grad():
+            conf = plan_cls.sigmoid().flatten(1)
+            return conf.max(dim=1).values < self.trigger_threshold
+
+    def _query_language(self, packet, use):
+        """트리거된 샘플만 언어 모델에 묻는다 (infer_batch).
+        Returns: meta_idx [B] long (미사용 샘플은 0), use [B] bool (언어 실패(None) 샘플은 False)"""
+        idx = use.nonzero().flatten().tolist()
+        results = self.language_model.infer_batch(
+            [self._scene_input(packet, b) for b in idx]
+        )
+        meta_idx = torch.zeros(use.shape[0], dtype=torch.long, device=use.device)
+        use = use.clone()
+        for b, (m, _sentence) in zip(idx, results):
+            if m is None:  # 언어 모델 실패 -> 이 샘플은 1차 결과 유지
+                use[b] = False
+            else:
+                meta_idx[b] = int(m)
+        return meta_idx, use
+
+    @staticmethod
+    def _select(use, new, old):
+        """use [B] 인 샘플은 new, 나머지는 old (배치 첫 축 기준)"""
+        if new is None or old is None:
+            return old
+        return torch.where(use.reshape([-1] + [1] * (old.dim() - 1)), new, old)
+
+    def _lang_packet(self, instance_feature, num_anchor, det_confidence, det_anchors, det_classification,
+                     map_feat, plan_query, plan_reg, plan_cls, metas):
+        """C: 1차 refine 결과로 언어 패킷 (배치 전체, detach). 트리거가 걸린 때만 호출된다."""
+        return self.lang_packet_builder(
+            agent_feat=instance_feature[:, :num_anchor],
+            agent_conf=det_confidence,
+            agent_boxes=det_anchors,
+            agent_labels=det_classification.argmax(dim=-1),
+            ego_feat_modes=plan_query[:, 0],  # [B, 1, 3 * ME, D] -> [B, 3 * ME, D]
+            plan_reg=plan_reg,
+            plan_cls=plan_cls,
+            cmd=metas.get("gt_ego_fut_cmd") if isinstance(metas, dict) else None,
+            map_feat=map_feat,
+        )
+
+    @staticmethod
+    def _scene_input(packet, b):
+        """언어모듈 입력 (샘플 b 하나) = 패킷의 b번째. 텍스트/임베딩 경로 모두 같은 dict이고 변환은 C 안에서 한다."""
+        return split_packet(packet, b)
+
+    def _refine_once(
+        self,
+        i,
+        instance_feature,
+        anchor_embed,
+        num_anchor,
+        motion_mode_pos,
+        plan_mode_pos,
+        plan_anchor_delta,
+        cond=None,
+    ):
+        """Run the refine block once (plan B: refine only, no gnn / VAE).
+
+        cond is reserved for the feedback (adaLN) 2nd pass and is unused for now,
+        so with cond=None the output is identical to the original refine block.
+        """
+        # get motion and planing feature
+        motion_query = motion_mode_pos + (instance_feature + anchor_embed)[:, :num_anchor].unsqueeze(2) # [B, N1, MA, D]
+        plan_query = plan_mode_pos + (instance_feature + anchor_embed)[:, num_anchor:].unsqueeze(1) # [B, 1, ME, D]
+        # === adaLN 조건 주입 (A 통합, cond=None이면 아무 영향 없음) ===
+        if cond is not None:
+            gamma, beta, alpha = cond
+            shape = [gamma.shape[0]] + [1] * (plan_query.dim() - 2) + [gamma.shape[-1]]
+            g = gamma.reshape(shape)
+            b = beta.reshape(shape)
+            a = alpha.reshape(shape)
+            # 식은 B의 AdaLNZero.modulate 한 곳에: q + a * ((1 + g) * LN(q) + b)
+            plan_query = self.adaln.modulate(plan_query, g, b, a)
+        # Only get one Status, Must to commperss in MultiModal
+        ego_feature = self.ego_feature_avp(instance_feature[:, num_anchor:].permute(0, 2, 1)).permute(0, 2, 1) # [B, 1, D]
+        ego_anchor_embed = self.ego_pos_avp(anchor_embed[:, num_anchor:].permute(0, 2, 1)).permute(0, 2, 1)  # [B, 1, D]
+        # Need to update Memory Bank
+        (
+            motion_cls,
+            motion_reg,
+            plan_cls,
+            plan_reg,
+            plan_status,
+        ) = self.layers[i](
+            motion_query,
+            plan_query,
+            ego_feature,
+            ego_anchor_embed,
+        )
+        # anchor + offset schedule
+        if self.pred_delta:
+            plan_delta = plan_anchor_delta.clone().flatten(1, 2).unsqueeze(1) # [B, 1, ME, T2, 2]
+            plan_reg = plan_reg + plan_delta
+        return motion_cls, motion_reg, plan_cls, plan_reg, plan_status, plan_query
 
     def get_future_state(self, gt_ego_fut_trajs, gt_ego_fut_masks, gt_agent_fut_trajs, gt_agent_fut_masks, gt_labels_3d):
 

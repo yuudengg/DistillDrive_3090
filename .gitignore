@@ -19,3 +19,7 @@ build/
 # vis outputs
 vis/
 work_dirs/
+
+# checkpoints
+checkpoint/
+*.pyo
