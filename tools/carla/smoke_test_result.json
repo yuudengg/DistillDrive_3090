@@ -1,0 +1,12 @@
+{
+  "server_version": "0.9.15",
+  "client_version": "0.9.15",
+  "gpu_mem_carla_only_mb": 6314,
+  "gpu_mem_with_6cam_mb": 6505,
+  "ticks": 200,
+  "tick_ms_mean": 49.26286129499658,
+  "tick_ms_median": 48.416831999929855,
+  "tick_ms_p90": 54.13790800048446,
+  "tick_ms_min": 44.62255999987974,
+  "tick_ms_max": 58.34555599994928
+}
