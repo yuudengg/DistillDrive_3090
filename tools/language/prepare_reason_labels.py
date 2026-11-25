@@ -8,21 +8,13 @@
     labelled nuScenes val as a separate file -> it becomes val and --labels is not split:
         --labels data/language/labels_train.json --val-labels data/language/labels_val.json
 
-Input (v72): {sample_token: {command_id, action_lateral, action_longitudinal, reason_lateral, reason_longitudinal,
-              map_context, evidence, ...}}
-Output rows (what ReasonPacketDataset / ReasonTextDataset read):
-    {"sample_token", "meta_action", "meta_action_text", "reason", "scene_token", ...v72 fields kept for analysis}
-
-What it does
-  1. meta_action = command_id * 4 + longitudinal  (meta_spec.py order: right 0 / left 1 / straight 2)
-     command_id is the same lateral class as gt_ego_fut_cmd, so a lane change counts as left/right like the rule.
-     longitudinal: accelerate / start moving -> accelerate, keep speed -> keep, decelerate -> decelerate,
-                   stop / stay stopped -> stop
-  2. reason = reason_lateral + " " + reason_longitudinal
+Conversion and label checks are NOT done here: they come from convert_kaggle_labels.py (one set of rules):
+    12-class mapping, reason = longitudinal reason (+ lateral reason when not straight),
+    REJECT unknown / second person / lateral vs command / pedestrian-crossing accelerate / invalid.
+This script adds what the training split needs on top of that:
   3. with --pkl, rows whose 6-step future is cut by the scene end (gt_ego_fut_masks < 1) are dropped:
      the padded (0,0) future makes a moving car look like it stops.
-     rows whose reason says the cause is unknown are dropped (written to dropped_unknown.jsonl).
-     --keep-unknown keeps them (the LM then learns to answer "unknown").
+     rows rejected by convert_kaggle_labels go to dropped_rejected.jsonl (with "flags").
   4. train/val split BY SCENE (scene_token from the info pkl), so frames of one scene never sit on both sides.
      Val scenes are picked by random search so each meta-action class is spread over train and val as evenly as
      possible and no class is missing from train.
@@ -44,25 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from _compat import load_language_package  # noqa: E402
 
-LON_MAP = {
-    "accelerate": "accelerate",
-    "start moving": "accelerate",
-    "keep speed": "keep",
-    "decelerate": "decelerate",
-    "stop": "stop",
-    "stay stopped": "stop",
-}
-UNKNOWN_RE = re.compile(r"\bunknown\b", re.IGNORECASE)
-
-
-def convert(token, v, meta_spec, prompt):
-    lon = LON_MAP[v["action_longitudinal"]]
-    lat = int(v["command_id"])
-    meta = lat * meta_spec.NUM_LONGITUDINAL + meta_spec.LONGITUDINAL.index(lon)
-    reason = prompt.clean_reason(f"{v['reason_lateral'].strip()} {v['reason_longitudinal'].strip()}")
-    row = {"sample_token": token, "meta_action": meta, "meta_action_text": meta_spec.meta_name(meta), "reason": reason}
-    row.update({k: v[k] for k in v if k not in row})
-    return row
+import convert_kaggle_labels as ck  # noqa: E402  (same folder, on sys.path above)
 
 
 def scene_of(pkls):
@@ -137,27 +111,23 @@ def write_jsonl(path, rows):
 
 
 def hist(rows, meta_spec):
-    c = Counter(r["meta_action"] for r in rows)
+    c = Counter(r["meta_action"] for r in rows if "meta_action" in r)
     return {meta_spec.meta_name(m): c[m] for m in sorted(c)}
 
 
-def load_rows(paths, keep_unknown, meta_spec, prompt):
+def load_rows(paths, lang):
+    """label json(s) -> convert_kaggle_labels rules. Later files win on duplicate tokens."""
     raw = {}
     for p in paths:
-        with open(p, encoding="utf-8") as f:
-            raw.update(json.load(f))
-    rows, dropped, bad = [], [], []
-    for tok, v in raw.items():
-        row = convert(tok, v, meta_spec, prompt)
-        if not keep_unknown and UNKNOWN_RE.search(v["reason_lateral"] + " " + v["reason_longitudinal"]):
-            dropped.append(row)
-        elif not prompt.validate_reason(row["reason"]):
-            bad.append(row)
-        else:
-            rows.append(row)
-    print(f"[labels] {len(raw)} rows -> kept {len(rows)}, unknown dropped {len(dropped)}, invalid {len(bad)}")
+        raw.update(ck.load_labels(p)[0])
+    label_model = "kaggle:" + "+".join(Path(p).stem for p in paths)
+    rows, rejected, _ = ck.convert(raw, lang, label_model)
+    for r in rows:
+        r["city"] = raw[r["sample_token"]].get("city")
+    flags = Counter(f for r in rejected for f in r["flags"])
+    print(f"[labels] {len(raw)} rows -> kept {len(rows)}, rejected {len(rejected)} {dict(flags)}")
     print("[labels] cities:", dict(Counter(v.get("city") for v in raw.values())))
-    return raw, rows, dropped, bad
+    return raw, rows, rejected
 
 
 def attach_scenes(rows, scenes, cut):
@@ -183,7 +153,6 @@ def main():
     ap.add_argument("--out-dir", required=True)
     ap.add_argument("--val-ratio", type=float, default=0.2)
     ap.add_argument("--seed", type=int, default=0)
-    ap.add_argument("--keep-unknown", action="store_true")
     ap.add_argument("--reset-speed", type=float, default=0.5, help="no --pkl: speed jump that marks a new scene")
     args = ap.parse_args()
     if args.val_labels and not args.pkl:
@@ -193,9 +162,8 @@ def main():
     from importlib import import_module
 
     meta_spec = import_module(lang.__name__ + ".meta_spec")
-    prompt = import_module(lang.__name__ + ".prompt")
 
-    raw, rows, dropped, bad = load_rows(args.labels, args.keep_unknown, meta_spec, prompt)
+    raw, rows, dropped = load_rows(args.labels, lang)
 
     if args.pkl:
         scenes, cut = scene_of(args.pkl)
@@ -214,13 +182,13 @@ def main():
 
     if args.val_labels:
         print("[split] val = --val-labels (no split of --labels)")
-        _, val, v_dropped, v_bad = load_rows(args.val_labels, args.keep_unknown, meta_spec, prompt)
+        _, val, v_dropped = load_rows(args.val_labels, lang)
         val = attach_scenes(val, scenes, cut)
         overlap = {r["scene_token"] for r in rows} & {r["scene_token"] for r in val}
         if overlap:
             print(f"[warn] {len(overlap)} scenes appear in both train and val label files")
         train, val_groups = rows, {r["scene_token"] for r in val}
-        dropped, bad = dropped + v_dropped, bad + v_bad
+        dropped = dropped + v_dropped
         unit = "separate_val_file"
     else:
         train, val, val_groups = split_by_group(rows, groups, args.val_ratio, args.seed)
@@ -229,12 +197,10 @@ def main():
     out.mkdir(parents=True, exist_ok=True)
     write_jsonl(out / "reasons_train.jsonl", train)
     write_jsonl(out / "reasons_val.jsonl", val)
-    write_jsonl(out / "dropped_unknown.jsonl", dropped)
-    if bad:
-        write_jsonl(out / "dropped_invalid.jsonl", bad)
+    write_jsonl(out / "dropped_rejected.jsonl", dropped)
     summary = dict(
         split_unit=unit, scenes_train=len({r["scene_token"] for r in train}), scenes_val=len(val_groups),
-        train=len(train), val=len(val), unknown_dropped=len(dropped), invalid=len(bad),
+        train=len(train), val=len(val), rejected=len(dropped),
         train_hist=hist(train, meta_spec), val_hist=hist(val, meta_spec), dropped_hist=hist(dropped, meta_spec),
         val_scenes=sorted(val_groups),
     )
